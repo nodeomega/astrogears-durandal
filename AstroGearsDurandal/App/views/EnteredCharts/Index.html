@@ -1,0 +1,59 @@
+﻿<section>
+    <h1 data-bind="text: displayName"></h1>
+    
+    <div id="listingLoading" class="ajax-loader">
+        <div style="position:relative; top:200px;">
+            <img src="../../../Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
+        </div>
+    </div>
+
+    <table class="table table-standard">
+        <thead>
+            <tr>
+                <th>
+                    Subject Name
+                </th>
+                <th>
+                    Birth/Event Location
+                </th>
+                <th>
+                    Birth/Event Time
+                </th>
+                <th>
+                    Chart Type
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="listingBody" data-bind="foreach: charts">
+            <tr>
+                <td data-bind="text: SubjectName"></td>
+                <td data-bind="text: SubjectLocation"></td>
+                <td data-bind="text: OriginDateTimeString"></td>
+                <td data-bind="text: ChartTypeName"></td>
+                <td>
+                    <a href="#" data-bind="click:$parent.editLink" title="Edit Entered Chart Data"><span class="fa fa-edit"> Edit</span></a>
+                    <br/>
+                    <a data-bind="attr: {href:'#/EnteredCharts/Details/'+EnteredChartId, title:'Details'}"><span class="fa fa-search"> Details</span></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="container">
+        <div class="col-md-6">
+            Results per page:
+            <select id="resultsPerPage" data-bind="event:  { change: selectNumberPerPage }">
+                <option value="10" selected="selected">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            Page
+            <select id="pageNumber" data-bind="options: pageNumbers, event: {change: selectPageNumber }"></select> of <span data-bind="text: numberOfPages"></span>
+        </div>
+    </div>
+
+</section>

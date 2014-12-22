@@ -171,8 +171,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="App_Start\DurandalBundleConfig.cs" />
-    <Compile Include="App_Start\DurandalConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -214,6 +212,11 @@
     </Compile>
     <Compile Include="Models\AstroGearsModel.generated.cs">
       <DependentUpon>AstroGearsModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AstroGearsModel1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AstroGearsModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\AutoCompleteForAspectInterpretationEntry_Result.generated.cs">
       <DependentUpon>AstroGearsModel.tt</DependentUpon>
@@ -291,6 +294,18 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App\main.js" />
+    <Content Include="App\viewmodels\EnteredCharts\Details.js" />
+    <Content Include="App\viewmodels\EnteredCharts\Index.js" />
+    <Content Include="App\viewmodels\flickr.js" />
+    <Content Include="App\viewmodels\shell.js" />
+    <Content Include="App\viewmodels\welcome.js" />
+    <Content Include="App\views\EnteredCharts\Details.html" />
+    <Content Include="App\views\EnteredCharts\Index.html" />
+    <Content Include="App\views\detail.html" />
+    <Content Include="App\views\flickr.html" />
+    <Content Include="App\views\shell.html" />
+    <Content Include="App\views\welcome.html" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -355,6 +370,18 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\ajax-loader-blue-bar.gif" />
+    <Content Include="Images\ajax-loader-blue-processing-medium.gif" />
+    <Content Include="Images\ajax-loader-blue-processing.gif" />
+    <Content Include="Images\ajax-loader-goldenrod-bar.gif" />
+    <Content Include="Images\ajax-loader-goldenrod-processing-medium.gif" />
+    <Content Include="Images\ajax-loader-goldenrod-processing.gif" />
+    <Content Include="Images\ajax-loader-green-bar.gif" />
+    <Content Include="Images\ajax-loader-green-processing-medium.gif" />
+    <Content Include="Images\ajax-loader-green-processing.gif" />
+    <Content Include="Images\ajax-loader-red-bar.gif" />
+    <Content Include="Images\ajax-loader-red-processing-medium.gif" />
+    <Content Include="Images\ajax-loader-red-processing.gif" />
     <Content Include="Scripts\almond-custom.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -459,7 +486,6 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App\" />
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
@@ -467,11 +493,8 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\bootstrap\bootstrap.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\durandal\durandal-1.x.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\durandal\durandal.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jqueryui\jqueryui.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\knockout\knockout.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

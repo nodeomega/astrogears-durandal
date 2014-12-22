@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TransitsController.cs" company="Jonathan Russell">
-//   Copyright (c) Jonathan Russell - All Rights Reserved
+//   Copyright (c) Jonathan Russell - All Rights Reserved.
 // </copyright>
 // <summary>
 //   Defines the TransitsController type.
