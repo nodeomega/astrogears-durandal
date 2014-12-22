@@ -58,7 +58,8 @@ namespace AstroGearsDurandal
                     .Include("~/Scripts/knockout-{version}.js"));
 
             bundles.Add(
-                new StyleBundle("~/Content/durandalcss").Include("~/Content/bootstrap.min.css")
+                new StyleBundle("~/Content/durandalcss").Include("~/Content/ie10mobile.css")
+                    .Include("~/Content/bootstrap.min.css")
                     .Include("~/Content/font-awesome.min.css")
                     .Include("~/Content/durandal.css")
                     .Include("~/Content/Site.css"));
