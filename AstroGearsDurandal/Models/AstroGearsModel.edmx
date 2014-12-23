@@ -124,6 +124,7 @@
           </Key>
           <Property Name="AngleId" Type="tinyint" Nullable="false" />
           <Property Name="AngleName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="PreferredOrder" Type="tinyint" Nullable="false" />
         </EntityType>
         <EntityType Name="HouseCusps">
           <Key>
@@ -1094,6 +1095,7 @@
           <NavigationProperty Name="RelocatedChartAngles" Relationship="AstroGearsModel.FK_RelocatedChartAngles_HouseAngles" FromRole="HouseAngle" ToRole="RelocatedChartAngle" />
           <NavigationProperty Name="AspectInterpretations" Relationship="AstroGearsModel.FK_AspectInterpretations_HouseAngles1" FromRole="HouseAngle" ToRole="AspectInterpretation" />
           <NavigationProperty Name="AspectInterpretations1" Relationship="AstroGearsModel.FK_AspectInterpretations_HouseAngles2" FromRole="HouseAngle" ToRole="AspectInterpretation" />
+          <Property Name="PreferredOrder" Type="Byte" Nullable="false" />
           </EntityType>
         <EntityType Name="HouseCusp">
           <Key>
@@ -1746,6 +1748,7 @@
           <EntitySetMapping Name="HouseAngles">
             <EntityTypeMapping TypeName="AstroGearsModel.HouseAngle">
               <MappingFragment StoreEntitySet="HouseAngles">
+                <ScalarProperty Name="PreferredOrder" ColumnName="PreferredOrder" />
                 <ScalarProperty Name="AngleName" ColumnName="AngleName" />
                 <ScalarProperty Name="AngleId" ColumnName="AngleId" />
               </MappingFragment>

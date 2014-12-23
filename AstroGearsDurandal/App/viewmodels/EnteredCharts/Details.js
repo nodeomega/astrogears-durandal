@@ -37,9 +37,9 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
             var that = this;
             $('#chartLoading').show();
             return $.when(
-                $.getJSON('http://astrogears/EnteredCharts/GetDetailsChartListing?callback=?', { id: context, draconic: false, arabic: false, asteroids: false, stars: false, houseSystemId: 0 }),
-                $.getJSON('http://astrogears/EnteredCharts/GetDetailsHouseListing?callback=?', { chartId: context, houseSystemId: 0 }),
-                $.getJSON('http://astrogears/EnteredCharts/GetDetailsAngleListing?callback=?', { chartId: context })
+                $.getJSON('/EnteredCharts/GetDetailsChartListing', { id: context, draconic: false, arabic: false, asteroids: false, stars: false, houseSystemId: 0 }),
+                $.getJSON('/EnteredCharts/GetDetailsHouseListing', { chartId: context, houseSystemId: 0 }),
+                $.getJSON('/EnteredCharts/GetDetailsAngleListing', { chartId: context })
                 ).then(function (listingResponse, houseResponse, angleResponse) {
                     that.chartObjects(listingResponse[0]);
                     that.thisnum(context)

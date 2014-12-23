@@ -204,19 +204,20 @@
     <Compile Include="Models\AspectInterpretationType.generated.cs">
       <DependentUpon>AstroGearsModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\AstroGearsModel.Context.cs">
+    <Compile Include="Models\AstroGearsModel.Context1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
       <DependentUpon>AstroGearsModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\AstroGearsModel.Designer.cs">
-      <DependentUpon>AstroGearsModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Models\AstroGearsModel.generated.cs">
-      <DependentUpon>AstroGearsModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\AstroGearsModel1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AstroGearsModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AstroGearsModel1.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AstroGearsModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\AutoCompleteForAspectInterpretationEntry_Result.generated.cs">
       <DependentUpon>AstroGearsModel.tt</DependentUpon>

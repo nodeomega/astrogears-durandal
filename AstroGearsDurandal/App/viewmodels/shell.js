@@ -10,7 +10,6 @@
         activate: function () {
             router.map([
                 { route: '', title:'Welcome', moduleId: 'viewmodels/welcome', nav: true },
-                { route: 'flickr', moduleId: 'viewmodels/flickr', nav: true },
                 { route: 'EnteredCharts', moduleId: 'viewmodels/EnteredCharts/Index', title: 'Entered Charts', nav: true },
                 { route: 'EnteredCharts/Details/:id', moduleId: 'viewmodels/EnteredCharts/Details', nav: false }
             ]).buildNavigationModel();
