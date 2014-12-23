@@ -1,11 +1,17 @@
 ﻿<section>
     <h1 data-bind="text: displayName"></h1>
     
+    <p>
+        <a href="#" data-bind="click: openCreateForm" title="Create New Entered Chart"><span class="fa fa-plus-circle"></span> Create New Entered Chart</a>
+    </p>
+
     <div id="listingLoading" class="ajax-loader">
         <div style="position:relative; top:200px;">
             <img src="../../../Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
         </div>
     </div>
+    
+    <div id="status"></div>
 
     <table class="table table-standard">
         <thead>
@@ -32,7 +38,7 @@
                 <td data-bind="text: OriginDateTimeString"></td>
                 <td data-bind="text: ChartTypeName"></td>
                 <td>
-                    <a href="#" data-bind="click:$parent.editLink" title="Edit Entered Chart Data"><span class="fa fa-edit"> Edit</span></a>
+                    <a href="#" data-bind="click:$parent.openEditForm" title="Edit Entered Chart Data"><span class="fa fa-edit"> Edit</span></a>
                     <br/>
                     <a data-bind="attr: {href:'#/EnteredCharts/Details/'+EnteredChartId, title:'Details'}"><span class="fa fa-search"> Details</span></a>
                 </td>
@@ -55,5 +61,125 @@
             <select id="pageNumber" data-bind="options: pageNumbers, event: {change: selectPageNumber }"></select> of <span data-bind="text: numberOfPages"></span>
         </div>
     </div>
-
+    
+    <div class="modal fade" id="createEnteredChartModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <form>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Create New Entered Chart Data</h4>
+                    </div>
+                    <div class="modal-body form-horizontal container">
+                        <div id="createStatus"></div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Subject Name
+                            </label>
+                            <div class="col-md-10">
+                                <input id="createSubjectName" type="text" class="form-control entered-chart-data" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Location
+                            </label>
+                            <div class="col-md-10">
+                                <input id="createSubjectLocation" type="text" class="form-control entered-chart-data" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Date/Time
+                            </label>
+                            <div class="col-md-10">
+                                <input id="createOriginDateTime" type="text" class="form-control entered-chart-data" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Time Unknown
+                            </label>
+                            <div class="col-md-10">
+                                <input id="createOriginDateTimeUnknown" type="checkbox" class="form-control entered-chart-data" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Chart Type
+                            </label>
+                            <div class="col-md-10">
+                                <select id="createChartTypeId" class="form-control entered-chart-data" data-bind="options: chartTypes, optionsValue: 'ChartTypeId', optionsText: 'ChartTypeName'"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="button" class="btn btn-primary" id="confirmEnteredChartCreate" value="Confirm Entry" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="editEnteredChartModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <form data-bind="with: editChart">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Update Entered Chart Data</h4>
+                    </div>
+                    <div class="modal-body form-horizontal container">
+                        <div id="editStatus"></div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Subject Name
+                            </label>
+                            <div class="col-md-10">
+                                <input id="editSubjectName" type="text" class="form-control entered-chart-data" data-bind="value: SubjectName" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Location
+                            </label>
+                            <div class="col-md-10">
+                                <input id="editSubjectLocation" type="text" class="form-control entered-chart-data" data-bind="value: SubjectLocation" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Date/Time
+                            </label>
+                            <div class="col-md-10">
+                                <input id="editOriginDateTime" type="text" class="form-control entered-chart-data" data-bind="value: OriginDateTimeString" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Time Unknown
+                            </label>
+                            <div class="col-md-10">
+                                <input id="editOriginDateTimeUnknown" type="checkbox" class="form-control entered-chart-data" data-bind="checked: OriginDateTimeUnknown" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Chart Type
+                            </label>
+                            <div class="col-md-10">
+                                <select id="editChartTypeId" class="form-control entered-chart-data" data-bind="options: $root.chartTypes, optionsValue: 'ChartTypeId', optionsText: 'ChartTypeName', value: ChartTypeId"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="button" class="btn btn-primary" id="confirmEnteredChartEdit" value="Confirm Entry" />
+                        <input id="editEnteredChartId" type="hidden" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>

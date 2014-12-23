@@ -4,19 +4,37 @@
     //If you wish to be able to create multiple instances, instead export a function.
     //See the "welcome" module for an example of function export.
 
-    //function EnteredChartListing(data) {
-    //    this.SubjectName = ko.observable(data.SubjectName);
-    //    this.SubjectLocation = ko.observable(data.SubjectLocation);
-    //    this.OriginDateTimeString = ko.observable(data.OriginDateTimeString);
-    //    this.ChartTypeName = ko.observable(data.ChartTypeName);
-    //    this.EnteredChartId = ko.observable(data.EnteredChartId);
-    //}
+    function EnteredChartListing(data) {
+        this.SubjectName = ko.observable(data.SubjectName);
+        this.SubjectLocation = ko.observable(data.SubjectLocation);
+        this.OriginDateTimeString = ko.observable(data.OriginDateTimeString.replace('??:??', '12:00'));
+        this.OriginDateTime = ko.observable(data.OriginDateTime);
+        this.OriginDateTimeUnknown = ko.observable(data.OriginDateTimeUnknown);
+        this.ChartTypeName = ko.observable(data.ChartTypeName);
+        this.ChartTypeId = ko.observable(data.ChartTypeId);
+        this.EnteredChartId = ko.observable(data.EnteredChartId);
+    }
+
+    function BlankEnteredChartListing() {
+        this.SubjectName = ko.observable();
+        this.SubjectLocation = ko.observable();
+        this.OriginDateTimeString = ko.observable();
+        this.OriginDateTime = ko.observable();
+        this.OriginDateTimeUnknown = ko.observable(false);
+        this.ChartTypeName = ko.observable();
+        this.ChartTypeId = ko.observable();
+        this.EnteredChartId = ko.observable(0);
+    }
+
+    var editChart = ko.observable(new BlankEnteredChartListing());
 
     return {
-        displayName: 'AstroGears Entered Charts Listing',
+        editChart: editChart,
+        displayName: 'Entered Charts Listing',
         charts: ko.observableArray([]),
         numberOfPages: ko.observable(),
         pageNumbers: ko.observableArray([]),
+        chartTypes: ko.observableArray([]),
         activate: function () {
             //the router's activator calls this function and waits for it to complete before proceeding
             if (this.charts().length > 0) {
@@ -24,6 +42,9 @@
             }
 
             var that = this;
+            if (that.chartTypes.length === 0) {
+                that.setUpChartTypeDropdown();
+            }
             $('#listingLoading').show();
             //return http.jsonp('http://astrogears/EnteredCharts/GetEnteredChartsListing', { pageNum: 1, entriesPerPage: 10 }, 'callback').then(function (response) {
             return $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: 1, entriesPerPage: 10 }).then(function (response) {
@@ -35,10 +56,6 @@
                 }
                 $('#listingLoading').hide();
             });
-        },
-        editLink: function (item) {
-            EnteredCharts(item.EnteredChartId);
-            return false;
         },
         selectNumberPerPage: function (item) {
             var that = this;
@@ -68,10 +85,21 @@
                     $('#listingLoading').hide();
                 });
             }
+        },
+        setUpChartTypeDropdown: function () {
+            var that = this;
+            $.getJSON('/EnteredCharts/GetChartTypesList').then(function (response) {
+                that.chartTypes(response);
+            });
+        },
+        openCreateForm: function () {
+            $('#createEnteredChartModal').modal('show');
+            return false;
+        },
+        openEditForm: function (item) {
+            $('#editEnteredChartModal').modal('show');
+            editChart(new EnteredChartListing(item));
+            return false;
         }
     };
 });
-
-function EnteredCharts(id) {
-    alert('You\'re editing ID # ' + id + '!');
-}

@@ -298,13 +298,13 @@
     <Content Include="App\main.js" />
     <Content Include="App\viewmodels\EnteredCharts\Details.js" />
     <Content Include="App\viewmodels\EnteredCharts\Index.js" />
-    <Content Include="App\viewmodels\flickr.js" />
+    <Content Include="App\viewmodels\not-found.js" />
     <Content Include="App\viewmodels\shell.js" />
     <Content Include="App\viewmodels\welcome.js" />
     <Content Include="App\views\EnteredCharts\Details.html" />
     <Content Include="App\views\EnteredCharts\Index.html" />
     <Content Include="App\views\detail.html" />
-    <Content Include="App\views\flickr.html" />
+    <Content Include="App\views\not-found.html" />
     <Content Include="App\views\shell.html" />
     <Content Include="App\views\welcome.html" />
     <Content Include="Content\bootstrap-theme.css" />
@@ -386,6 +386,7 @@
     <Content Include="Scripts\almond-custom.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\createSnapshot.js" />
     <Content Include="Scripts\durandal\activator.js" />
     <Content Include="Scripts\durandal\app.js" />
     <Content Include="Scripts\durandal\binder.js" />

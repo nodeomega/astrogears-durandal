@@ -14,6 +14,8 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
         this.EnteredChartId = ko.observable(data.EnteredChartId);
     }
 
+    var mainAspect = ko.observable();
+
     return {
         settings: ko.observable({ cacheViews: false }),
         displayName: 'AstroGears Details Listing',
@@ -23,6 +25,7 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
         AngleList: ko.observableArray([]),
         DraconicHouseList: ko.observableArray([]),
         HasDraconicHouses: ko.observable(false),
+        mainAspect: mainAspect,
         AspectItem: ko.observableArray([]),
         AspectList: ko.observableArray([]),
         chartId: ko.observable(0),
@@ -45,7 +48,7 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
                     that.thisnum(context)
 
                     that.HouseList(houseResponse[0]);
-                    that.AngleList(AnglePreferredOrder(angleResponse[0]));
+                    that.AngleList(angleResponse[0]);
 
                     that.chartId(context);
 
@@ -61,7 +64,7 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
             that.chartObjects.removeAll();
             $('#chartLoading').show();
             return $.when(
-                $.getJSON('http://astrogears/EnteredCharts/GetDetailsChartListing?callback=?', {
+                $.getJSON('/EnteredCharts/GetDetailsChartListing', {
                     id: that.chartId,
                     draconic: $('#includeDraconic').is(':checked'),
                     arabic: $('#includeArabic').is(':checked'),
@@ -69,20 +72,37 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
                     stars: $('#includeStars').is(':checked'),
                     houseSystemId: $('#chartHouseSystems').val()
                 }),
-                $.getJSON('http://astrogears/EnteredCharts/GetDetailsHouseListing?callback=?', { chartId: that.chartId, houseSystemId: $('#chartHouseSystems').val() }),
-                $.getJSON('http://astrogears/EnteredCharts/GetDetailsAngleListing?callback=?', { chartId: that.chartId })
+                $.getJSON('/EnteredCharts/GetDetailsHouseListing', { chartId: that.chartId, houseSystemId: $('#chartHouseSystems').val() }),
+                $.getJSON('/EnteredCharts/GetDetailsAngleListing', { chartId: that.chartId })
                 ).then(function (listingResponse, houseResponse, angleResponse) {
                     that.chartObjects(listingResponse[0]);
 
                     that.HouseList(houseResponse[0]);
-                    that.AngleList(AnglePreferredOrder(angleResponse[0]));
+                    that.AngleList(angleResponse[0]);
 
                     $('#chartLoading').hide();
                 });
         },
         dynamicChartObjectCss: dynamicChartObjectCss,
         CoordinateString: CoordinateString,
-        FigureThisShitOut: FigureThisShitOut,
+        GetAspects: function (item, event) {
+            event.cancelBubble = true;
+            mainAspect('Aspects to ' + item.CelestialObjectName + ' (' + CoordinateString(item) + ')');
+            var a;
+            if (item.Draconic)
+                a = 1;
+                //return 'GetAspectsForDraconicChart()';
+            else if (item.CelestialObjectTypeName === 'Arabic Part')
+                a = 1;
+                //return 'GetAspectsForArabicChart();';
+            else if (item.CelestialObjectTypeName === 'Angle/House Cusp')
+                a = 1;
+                //return 'GetAspectsForAngleChart()';
+            else
+                a = 1;
+            //return 'GetAspects';
+            return false;
+        },
         EditThisShit: EditThisShit,
         isCelestialObject: isCelestialObject,
         HouseCoordinateString: HouseCoordinateString,
@@ -106,21 +126,6 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
         var houseCusps = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th', 6: '6th', 7: '7th', 8: '8th', 9: '9th', 10: '10th', 11: '11th', 12: '12th' };
 
         return houseCusps[item.HouseId];
-    }
-
-    function AnglePreferredOrder(array) {
-        var preferredOrder = { 0: 'Ascendant', 1: 'Descendant', 2: 'Midheaven', 3: 'Imum Coeli', 4: 'Vertex', 5: 'Antivertex' };
-        var newOrder = [];
-        for (var j = 0; j <= 5; j++) {
-            for (var i = 0, len = array.length; i < len; i++) {
-                if (array[i].AngleName === preferredOrder[j]) {
-                    newOrder.push(array[i]);
-                    break;
-                }
-            }
-        }
-
-        return newOrder;
     }
 
     function AngleLabel(item) {
@@ -193,17 +198,6 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
         return returnValue;
     }
 
-    function FigureThisShitOut(item) {
-        if (item.Draconic)
-            return 'GetAspectsForDraconicChart()';
-        else if (item.CelestialObjectTypeName === 'Arabic Part')
-            return 'GetAspectsForArabicChart();';
-        else if (item.CelestialObjectTypeName === 'Angle/House Cusp')
-            return 'GetAspectsForAngleChart()';
-        else
-            return 'GetAspects';
-    }
-
     function EditThisShit(item) {
         if (!item.Draconic && item.CelestialObjectTypeName !== 'Arabic Part' && item.CelestialObjectTypeName !== 'Angle/House Cusp')
             return 'FuckOff();'
@@ -217,4 +211,11 @@ define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
             return false;
         }
     }
+
+    $('.get-aspect').click(function () {
+        var context = ko.contextFor(this);
+        GetAspects(context.$data);
+        return false;
+        //
+    })
 });

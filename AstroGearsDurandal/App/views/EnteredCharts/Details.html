@@ -121,8 +121,8 @@
                         <td data-bind="html: $root.CoordinateString($data)"></td>
                         <td data-bind="html: House"></td>
                         <td>
-                            <a href="#" data-bind="attr: {onclick: $root.FigureThisShitOut($data)}, title: 'View Aspects'"><span class="fa fa-search"></span></a>&nbsp;
-                            <a href="#" data-bind="click: $root.EditThisShit($data), visible: $root.isCelestialObject, title: 'Edit Coordinates'"><span class="fa fa-edit"></span></a>
+                            <a href="#" data-bind="click: $root.GetAspects" title="View Aspects"><span class="fa fa-search"></span></a>&nbsp;
+                            <a href="#" data-bind="click: function() {$root.EditThisShit($data);return false;}, visible: $root.isCelestialObject" title="Edit Coordinates"><span class="fa fa-edit"></span></a>
                         </td>
                     </tr>
                 </tbody>
@@ -134,7 +134,7 @@
                     <img src="~/Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
                 </div>
             </div>
-            <div id="aspecttarget" style="font-size:1.5em;"></div>
+            <div id="aspecttarget" style="font-size:1.5em;" data-bind="html: mainAspect"></div>
             <ul id="aspectlist" data-bind="foreach: AspectList">
                 <li data-bind="html: AspectName, visible: HasAspects">
                     <ul data-bind="foreach: AspectObjectList">

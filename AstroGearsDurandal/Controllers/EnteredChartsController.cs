@@ -326,31 +326,6 @@ namespace AstroGearsDurandal.Controllers
         }
 
         /// <summary>
-        /// Gets the entered chart details.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        /// The Details.
-        /// </returns>
-        [NotNull]
-        public async Task<ActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            ////var enteredChart = await this.db.EnteredCharts.Include(chart => chart.ChartObjects).FirstOrDefaultAsync(chart => id == chart.EnteredChartId);
-            var enteredChart = await this.db.EnteredCharts.FirstOrDefaultAsync(chart => id == chart.EnteredChartId);
-            if (enteredChart == null)
-            {
-                return this.HttpNotFound();
-            }
-
-            return this.View(enteredChart);
-        }
-
-        /// <summary>
         /// Updates the entered chart.
         /// </summary>
         /// <param name="enteredChartId">The entered chart identifier.</param>
@@ -1572,7 +1547,8 @@ namespace AstroGearsDurandal.Controllers
                                 x.Sign.SignAbbreviation, 
                                 x.Sign.SignId, 
                                 x.Sign.Element.HtmlTextCssClass, 
-                                x.AngleId
+                                x.AngleId,
+                                x.HouseAngle.PreferredOrder
                             })
                     .ToList();
 
@@ -1597,7 +1573,8 @@ namespace AstroGearsDurandal.Controllers
                                 vertex.SignId < 6
                                     ? signs[vertex.SignId + 6].Element.HtmlTextCssClass
                                     : signs[vertex.SignId - 6].Element.HtmlTextCssClass, 
-                            AngleId = (byte)3
+                            AngleId = (byte)3,
+                            PreferredOrder = (byte)5
                         };
 
                 chartAngles.Add(antivertex);
@@ -1624,7 +1601,8 @@ namespace AstroGearsDurandal.Controllers
                                 ascendant.SignId < 6
                                     ? signs[ascendant.SignId + 6].Element.HtmlTextCssClass
                                     : signs[ascendant.SignId - 6].Element.HtmlTextCssClass, 
-                            AngleId = (byte)4
+                            AngleId = (byte)4,
+                            PreferredOrder = (byte)1
                         };
 
                 chartAngles.Add(descendant);
@@ -1651,13 +1629,14 @@ namespace AstroGearsDurandal.Controllers
                                 midheaven.SignId < 6
                                     ? signs[midheaven.SignId + 6].Element.HtmlTextCssClass
                                     : signs[midheaven.SignId - 6].Element.HtmlTextCssClass, 
-                            AngleId = (byte)5
+                            AngleId = (byte)5,
+                            PreferredOrder = (byte)3
                         };
 
                 chartAngles.Add(imumCoeli);
             }
 
-            return this.Json(chartAngles, JsonRequestBehavior.AllowGet);
+            return this.Json(chartAngles.OrderBy(x => x.PreferredOrder), JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -2128,17 +2107,6 @@ namespace AstroGearsDurandal.Controllers
         }
 
         /// <summary>
-        ///     Gets the Entered Charts listing.
-        /// </summary>
-        /// <returns>The Index Page for Entered Charts.</returns>
-        [NotNull]
-        public async Task<ActionResult> Index()
-        {
-            var enteredCharts = this.db.EnteredCharts.Include(e => e.ChartType);
-            return this.View(await enteredCharts.ToListAsync());
-        }
-
-        /// <summary>
         /// Gets the entered charts listing.
         /// </summary>
         /// <param name="pageNum">The page number.</param>
@@ -2170,7 +2138,10 @@ namespace AstroGearsDurandal.Controllers
                                           x.SubjectName,
                                           x.SubjectLocation,
                                           x.OriginDateTimeString,
+                                          x.OriginDateTime,
+                                          x.OriginDateTimeUnknown,
                                           x.ChartType.ChartTypeName,
+                                          x.ChartTypeId,
                                           x.EnteredChartId
                                       })
                               : null;
@@ -2272,52 +2243,6 @@ namespace AstroGearsDurandal.Controllers
                               };
 
             return newPart;
-        }
-
-        /// <summary>
-        /// Gets the primary chart details for Synastry analysis.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>the first synastry chart's details.</returns>
-        [NotNull]
-        public async Task<ActionResult> Synastry(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            ////var enteredChart = await this.db.EnteredCharts.Include(chart => chart.ChartObjects).FirstOrDefaultAsync(chart => id == chart.EnteredChartId);
-            var enteredChart = await this.db.EnteredCharts.FirstOrDefaultAsync(chart => id == chart.EnteredChartId);
-            if (enteredChart == null)
-            {
-                return this.HttpNotFound();
-            }
-
-            return this.View(enteredChart);
-        }
-
-        /// <summary>
-        /// Gets the primary chart details for Transit analysis.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>The base chart's details.</returns>
-        [NotNull]
-        public async Task<ActionResult> Transits(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            ////var enteredChart = await this.db.EnteredCharts.Include(chart => chart.ChartObjects).FirstOrDefaultAsync(chart => id == chart.EnteredChartId);
-            var enteredChart = await this.db.EnteredCharts.FirstOrDefaultAsync(chart => id == chart.EnteredChartId);
-            if (enteredChart == null)
-            {
-                return this.HttpNotFound();
-            }
-
-            return this.View(enteredChart);
         }
 
         /// <summary>
