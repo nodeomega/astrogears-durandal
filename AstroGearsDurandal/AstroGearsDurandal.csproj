@@ -383,9 +383,11 @@
     <Content Include="Images\ajax-loader-red-bar.gif" />
     <Content Include="Images\ajax-loader-red-processing-medium.gif" />
     <Content Include="Images\ajax-loader-red-processing.gif" />
+    <Content Include="phantomjs.exe" />
     <Content Include="Scripts\almond-custom.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\common-library.js" />
     <Content Include="Scripts\createSnapshot.js" />
     <Content Include="Scripts\durandal\activator.js" />
     <Content Include="Scripts\durandal\app.js" />

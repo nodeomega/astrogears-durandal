@@ -25,7 +25,7 @@ namespace AstroGearsDurandal.Controllers
         /// <returns>The home index view.</returns>
         public ActionResult Index()
         {
-            if (Request.QueryString["_escaped_fragment_"] == null )
+            if (Request.QueryString["_escaped_fragment_"] == null)
             {
                 return this.View();
             }
@@ -41,7 +41,8 @@ namespace AstroGearsDurandal.Controllers
                     return this.View();
                 }
 
-                var result = this.Crawl(url.AbsoluteUri.Replace("?_escaped_fragment_=", string.Empty));
+                ////var result = this.Crawl(url.AbsoluteUri.Replace("?_escaped_fragment_=", string.Empty));
+                var result = this.Crawl(url.AbsoluteUri.Replace("?_escaped_fragment_=", "#!"));
                 return this.Content(result);
             }
             catch 
@@ -55,7 +56,7 @@ namespace AstroGearsDurandal.Controllers
 
 
         /// <summary>
-        /// Start a new phantomjs process for crawling
+        /// Start a new phantom js process for crawling
         /// </summary>
         /// <param name="url">The target url</param>
         /// <returns>Html string</returns>

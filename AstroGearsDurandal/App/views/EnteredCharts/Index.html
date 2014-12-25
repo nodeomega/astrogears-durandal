@@ -11,7 +11,7 @@
         </div>
     </div>
     
-    <div id="status"></div>
+    <div id="status" data-bind="html: status"></div>
 
     <table class="table table-standard">
         <thead>
@@ -40,7 +40,7 @@
                 <td>
                     <a href="#" data-bind="click:$parent.openEditForm" title="Edit Entered Chart Data"><span class="fa fa-edit"> Edit</span></a>
                     <br/>
-                    <a data-bind="attr: {href:'#/EnteredCharts/Details/'+EnteredChartId, title:'Details'}"><span class="fa fa-search"> Details</span></a>
+                    <a data-bind="attr: {href:'/#!EnteredCharts/Details/'+EnteredChartId, title:'Details'}"><span class="fa fa-search"> Details</span></a>
                 </td>
             </tr>
         </tbody>
@@ -49,7 +49,7 @@
     <div class="container">
         <div class="col-md-6">
             Results per page:
-            <select id="resultsPerPage" data-bind="event:  { change: selectNumberPerPage }">
+            <select id="resultsPerPage" data-bind="value: resultsPerPage, event:  { change: selectNumberPerPage }">
                 <option value="10" selected="selected">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
@@ -58,26 +58,26 @@
         </div>
         <div class="col-md-6">
             Page
-            <select id="pageNumber" data-bind="options: pageNumbers, event: {change: selectPageNumber }"></select> of <span data-bind="text: numberOfPages"></span>
+            <select id="pageNumber" data-bind="options: pageNumbers, value:currentPageNumber, event: {change: selectPageNumber }"></select> of <span data-bind="text: numberOfPages"></span>
         </div>
     </div>
     
     <div class="modal fade" id="createEnteredChartModal" tabindex="-1" role="dialog">
         <div class="modal-dialog">
-            <form>
+            <form data-bind="with: createChart">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                         <h4 class="modal-title">Create New Entered Chart Data</h4>
                     </div>
                     <div class="modal-body form-horizontal container">
-                        <div id="createStatus"></div>
+                        <div id="createStatus" data-bind="html: $root.createStatus"></div>
                         <div class="form-group">
                             <label class="control-label col-md-2">
                                 Subject Name
                             </label>
                             <div class="col-md-10">
-                                <input id="createSubjectName" type="text" class="form-control entered-chart-data" />
+                                <input id="createSubjectName" type="text" class="form-control entered-chart-data" data-bind="value: SubjectName" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -85,7 +85,7 @@
                                 Birth/Event Location
                             </label>
                             <div class="col-md-10">
-                                <input id="createSubjectLocation" type="text" class="form-control entered-chart-data" />
+                                <input id="createSubjectLocation" type="text" class="form-control entered-chart-data" data-bind="value: SubjectLocation" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -93,7 +93,7 @@
                                 Birth/Event Date/Time
                             </label>
                             <div class="col-md-10">
-                                <input id="createOriginDateTime" type="text" class="form-control entered-chart-data" />
+                                <input id="createOriginDateTime" type="text" class="form-control entered-chart-data" data-bind="value: OriginDateTime" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -101,7 +101,7 @@
                                 Birth/Event Time Unknown
                             </label>
                             <div class="col-md-10">
-                                <input id="createOriginDateTimeUnknown" type="checkbox" class="form-control entered-chart-data" />
+                                <input id="createOriginDateTimeUnknown" type="checkbox" class="form-control entered-chart-data" data-bind="checked: OriginDateTimeUnknown" />
                             </div>
                         </div>
                         <div class="form-group">
@@ -109,13 +109,13 @@
                                 Chart Type
                             </label>
                             <div class="col-md-10">
-                                <select id="createChartTypeId" class="form-control entered-chart-data" data-bind="options: chartTypes, optionsValue: 'ChartTypeId', optionsText: 'ChartTypeName'"></select>
+                                <select id="createChartTypeId" class="form-control entered-chart-data" data-bind="options: $root.chartTypes, optionsValue: 'ChartTypeId', optionsText: 'ChartTypeName', value: ChartTypeId"></select>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <input type="button" class="btn btn-primary" id="confirmEnteredChartCreate" value="Confirm Entry" />
+                        <input type="button" class="btn btn-primary" id="confirmEnteredChartCreate" value="Confirm Entry" data-bind="click: $root.createNewChart" />
                     </div>
                 </div>
             </form>
@@ -131,7 +131,7 @@
                         <h4 class="modal-title">Update Entered Chart Data</h4>
                     </div>
                     <div class="modal-body form-horizontal container">
-                        <div id="editStatus"></div>
+                        <div id="editStatus" data-bind="html: $root.editStatus"></div>
                         <div class="form-group">
                             <label class="control-label col-md-2">
                                 Subject Name
@@ -175,8 +175,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <input type="button" class="btn btn-primary" id="confirmEnteredChartEdit" value="Confirm Entry" />
-                        <input id="editEnteredChartId" type="hidden" />
+                        <input type="button" class="btn btn-primary" id="confirmEnteredChartEdit" value="Confirm Entry" data-bind="click: $root.updateChart" />
+                        <input id="editEnteredChartId" type="hidden" data-bind="value: EnteredChartId" />
                     </div>
                 </div>
             </form>

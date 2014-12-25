@@ -1,4 +1,4 @@
-﻿define(['plugins/http', 'durandal/app', 'knockout'], function (http, app, ko) {
+﻿define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], function (http, app, ko, common) {
     //Note: This module exports an object.
     //That means that every module that "requires" it will get the same object instance.
     //If you wish to be able to create multiple instances, instead export a function.
@@ -26,15 +26,31 @@
         this.EnteredChartId = ko.observable(0);
     }
 
+    var status = ko.observable();
+    var createStatus = ko.observable();
+    var createChart = ko.observable(new BlankEnteredChartListing());
+    var editStatus = ko.observable();
     var editChart = ko.observable(new BlankEnteredChartListing());
+    var charts = ko.observableArray([]);
+    var numberOfPages = ko.observable();
+    var pageNumbers = ko.observableArray([]);
+    var chartTypes = ko.observableArray([]);
+    var currentPageNumber = ko.observable();
+    var resultsPerPage = ko.observable();
 
     return {
+        status: status,
+        createStatus: createStatus,
+        createChart: createChart,
+        editStatus: editStatus,
         editChart: editChart,
         displayName: 'Entered Charts Listing',
-        charts: ko.observableArray([]),
-        numberOfPages: ko.observable(),
-        pageNumbers: ko.observableArray([]),
-        chartTypes: ko.observableArray([]),
+        charts: charts,
+        numberOfPages: numberOfPages,
+        pageNumbers: pageNumbers,
+        chartTypes: chartTypes,
+        currentPageNumber: currentPageNumber,
+        resultsPerPage: resultsPerPage,
         activate: function () {
             //the router's activator calls this function and waits for it to complete before proceeding
             if (this.charts().length > 0) {
@@ -99,6 +115,59 @@
         openEditForm: function (item) {
             $('#editEnteredChartModal').modal('show');
             editChart(new EnteredChartListing(item));
+            return false;
+        },
+        createNewChart: function (item) {
+            var jqxhr = $.post('/EnteredCharts/CreateNewEnteredChart', {
+                subjectName: item.SubjectName(),
+                subjectLocation: item.SubjectLocation(),
+                originDateTime: item.OriginDateTime(),
+                originDateTimeUnknown: item.OriginDateTimeUnknown(),
+                chartTypeId: item.ChartTypeId()
+            }).then(function (data) {
+                if (data === 'Success') {
+                    status(common.SuccessIcon + ' New Entered Chart created successfully.');
+
+                    $('#createEnteredChartModal').modal('hide');
+
+                    $('#listingLoading').show();
+                    var reload = $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
+                        // alert(response);
+                        charts(response[0]);
+                        numberOfPages(response[1]);
+                        $('#listingLoading').hide();
+                    });
+                } else {
+                    createStatus(common.ErrorIcon + ' Failed to create new Entered Chart.<br />' + data)
+                }
+            });
+            return false;
+        },
+        updateChart: function (item) {
+            var jqxhr = $.post('/EnteredCharts/UpdateEnteredChart', {
+                enteredChartId: item.EnteredChartId(),
+                subjectName: item.SubjectName(),
+                subjectLocation: item.SubjectLocation(),
+                originDateTime: item.OriginDateTimeString(),
+                originDateTimeUnknown: item.OriginDateTimeUnknown(),
+                chartTypeId: item.ChartTypeId()
+            }).then(function (data) {
+                if (data === 'Success') {
+                    status(common.SuccessIcon + ' Entered Chart updated successfully.');
+
+                    $('#editEnteredChartModal').modal('hide');
+
+                    $('#listingLoading').show();
+                    var reload = $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
+                        // alert(response);
+                        charts(response[0]);
+                        numberOfPages(response[1]);
+                        $('#listingLoading').hide();
+                    });
+                } else {
+                    editStatus(common.ErrorIcon + ' Failed to update Entered Chart.<br />' + data)
+                }
+            });
             return false;
         }
     };
