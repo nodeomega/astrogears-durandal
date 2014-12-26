@@ -41,6 +41,8 @@
                     <a href="#" data-bind="click:$parent.openEditForm" title="Edit Entered Chart Data"><span class="fa fa-edit"> Edit</span></a>
                     <br/>
                     <a data-bind="attr: {href:'/#!EnteredCharts/Details/'+EnteredChartId, title:'Details'}"><span class="fa fa-search"> Details</span></a>
+                    <br/>
+                    <a href="#" data-bind="click:$parent.openDeleteForm" title="Delete Entered Chart"><span class="fa fa-remove error"> <span class="error"> Delete</span></span></a>
                 </td>
             </tr>
         </tbody>
@@ -177,6 +179,61 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <input type="button" class="btn btn-primary" id="confirmEnteredChartEdit" value="Confirm Entry" data-bind="click: $root.updateChart" />
                         <input id="editEnteredChartId" type="hidden" data-bind="value: EnteredChartId" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="deleteEnteredChartModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <form data-bind="with: deleteChart">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Delete Entered Chart Data</h4>
+                    </div>
+                    <div class="modal-body form-horizontal container">
+                        <div class="interface-warning">
+                            <span class="fa fa-exclamation-triangle error"></span> This will be PERMANENTLY deleted!<br />Continue?
+                        </div>
+                        <hr />
+                        <div id="deleteStatus" data-bind="html: $root.deleteStatus"></div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Subject Name
+                            </label>
+                            <div class="col-md-10" id="deleteSubjectName" data-bind="html: SubjectName"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Location
+                            </label>
+                            <div class="col-md-10" id="deleteSubjectLocation" data-bind="html: SubjectLocation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Birth/Event Date/Time
+                            </label>
+                            <div class="col-md-10" id="deleteOriginDateTime" data-bind="html: OriginDateTimeString"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                Chart Type
+                            </label>
+                            <div class="col-md-10" id="deleteChartType" data-bind="html: ChartTypeName"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                # of Chart Objects
+                            </label>
+                            <div class="col-md-10" id="deleteChartObjectsCount" data-bind="html: ChartObjectCount"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="button" class="btn btn-primary" id="confirmEnteredChartDelete" value="Confirm Delete" data-bind="click: $root.killChart" />
+                        <input id="deleteEnteredChartId" type="hidden" data-bind="value: EnteredChartId" />
                     </div>
                 </div>
             </form>

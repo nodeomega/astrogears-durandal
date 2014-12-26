@@ -1,6 +1,6 @@
 ﻿<section>
     <h2 data-bind="text: displayName"></h2>
-    <input type="hidden" id="chartId"/>
+    <input type="hidden" id="chartId" />
     <div class="container">
         <h4>Bullshit Chart for Nobody</h4>
         <hr />
@@ -31,20 +31,20 @@
     <div class="container">
         <form>
             <div class="col-sm-6 col-md-3">
-                <input type="checkbox" id="includeDraconic" /> Include Draconic
+                <input type="checkbox" id="includeDraconic" data-bind="checked: includeDraconic" /> Include Draconic
             </div>
             <div class="col-sm-6 col-md-3">
-                <input type="checkbox" id="includeArabic" /> Include Arabic Parts
+                <input type="checkbox" id="includeArabic" data-bind="checked: includeArabic" /> Include Arabic Parts
             </div>
             <div class="col-sm-6 col-md-3">
-                <input type="checkbox" id="includeAsteroids" /> Include Asteroids
+                <input type="checkbox" id="includeAsteroids" data-bind="checked: includeAsteroids" /> Include Asteroids
             </div>
             <div class="col-sm-6 col-md-3">
-                <input type="checkbox" id="includeStars" /> Include Fixed Stars
+                <input type="checkbox" id="includeStars" data-bind="checked: includeStars" /> Include Fixed Stars
             </div>
             <div class="col-sm-6 col-md-6">
                 <label>House System</label>
-                <select id="chartHouseSystems">
+                <select id="chartHouseSystems" data-bind="value: chartHouseSystemId">
                     <option value="0" selected="selected">Placidus</option>
                     <option value="1">Koch</option>
                     <option value="2">Equal</option>
@@ -63,14 +63,14 @@
                 </select>
             </div>
             <div class="col-sm-6 col-md-3">
-                <input type="button" id="refreshchart" data-bind="click:ShitOnMe" value="Refresh" />
+                <input type="button" id="refreshchart" data-bind="click:refreshChartData" value="Refresh" />
             </div>
             <div class="col-sm-6 col-md-3">
                 <input type="button" id="editHouses" value="Edit House Cusps" />
             </div>
         </form>
     </div>
-    
+
     <div class="container">
         <div id="houses" class="row" data-bind="foreach: HouseList">
             <div class="col-sm-6 col-md-3">
@@ -84,20 +84,26 @@
                 <div data-bind="html: $root.HouseCoordinateString($data)" class="col-sm-6 col-md-8"></div>
             </div>
         </div>
+        <div class="row draconic" data-bind="visible: HasDraconicHouses"><label>Draconic Houses</label></div>
         <div id="draconicHouses" class="row" data-bind="foreach: DraconicHouseList, visible: HasDraconicHouses">
-            <div class="col-md-11 draconic"><label>Draconic Houses</label></div><div class="col-md-1"></div>
-            <div data-bind="html: DracoHouseMouse"></div>
-            @Html.Partial("_DraconicHouseDisplayItem", new[,] { { "firstHouse", "1st" }, { "secondHouse", "2nd" }, { "thirdHouse", "3rd" }, { "fourthHouse", "4th" }, { "fifthHouse", "5th" }, { "sixthHouse", "6th" },
-            { "seventhHouse", "7th" }, { "eighthHouse", "8th" }, { "ninthHouse", "9th" }, { "tenthHouse", "10th" }, { "eleventhHouse", "11th" }, { "twelfthHouse", "12th" },
-            { "ascendant", "ASC" }, { "descendant", "DESC" }, { "midheaven", "M.C." }, { "imumCoeli", "I.C." }, { "vertex", "Vertex" }, { "antivertex", "Antivertex" }})
+            <div class="col-sm-6 col-md-3 draconic">
+                <label class="col-sm-6 col-md-4" data-bind="html: $root.HouseLabel($data)"></label>
+                <div data-bind="html: $root.HouseCoordinateString($data)" class="col-sm-6 col-md-8"></div>
+            </div>
+        </div>
+        <div id="draconicAngles" class="row" data-bind="foreach: DraconicAngleList, visible: HasDraconicHouses">
+            <div class="col-sm-6 col-md-3 draconic">
+                <label class="col-sm-6 col-md-4" data-bind="html: $root.AngleLabel($data)"></label>
+                <div data-bind="html: $root.HouseCoordinateString($data)" class="col-sm-6 col-md-8"></div>
+            </div>
         </div>
         <div id="chart" class="col-md-6" style="overflow-y:scroll; height:600px;position: relative">
             <input type="button" id="addPlanets" value="Add Planets" />
-            <input type="button" id="addSecondaries" value="Add Secondary Objects" title="Mean/True North Nodes, Ceres, Vesta, Juno, Pallas" />
+            <input type="button" id="addSecondaries" value="Add Secondary Objects" title="Mean/True North Nodes, Lilith, Ceres, Vesta, Juno, Pallas" />
             <input type="button" id="addAsteroids" value="Add Asteroids/Fixed Stars" />
             <div id="chartLoading" class="ajax-loader">
                 <div style="position:relative; top:200px;">
-                    <img src="../../Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
+                    <img src="../../../Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
                 </div>
             </div>
             <table class="table table-celestial-objects">
@@ -122,23 +128,29 @@
                         <td data-bind="html: House"></td>
                         <td>
                             <a href="#" data-bind="click: $root.GetAspects" title="View Aspects"><span class="fa fa-search"></span></a>&nbsp;
-                            <a href="#" data-bind="click: function() {$root.EditThisShit($data);return false;}, visible: $root.isCelestialObject" title="Edit Coordinates"><span class="fa fa-edit"></span></a>
+                            <a href="#" data-bind="click: function() {$root.EditThisShit($data);return false;}, visible: $root.isCelestialObject($data)" title="Edit Coordinates"><span class="fa fa-edit"></span></a>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div id="aspects" class="col-md-6" style="overflow-y:scroll; height:600px;">
-            <div id="aspectloading" style="font-size: 2em;display:none;position: absolute;width: 100%;height:600px;left: 0;top:0;text-align: center;">
+            <div id="aspectLoading" style="font-size: 2em;display:none;position: absolute;width: 100%;height:600px;left: 0;top:0;text-align: center;">
                 <div style="position:relative; top:200px;">
-                    <img src="~/Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
+                    <img src="../../../Images/ajax-loader-red-processing-medium.gif" alt="Loading..." title="Loading..." /> Loading...
                 </div>
             </div>
-            <div id="aspecttarget" style="font-size:1.5em;" data-bind="html: mainAspect"></div>
+            <div id="aspecttarget" style="font-size:1.5em;" data-bind="html: AspectItem"></div>
             <ul id="aspectlist" data-bind="foreach: AspectList">
-                <li data-bind="html: AspectName, visible: HasAspects">
-                    <ul data-bind="foreach: AspectObjectList">
-                        <li data-bind="html: AspectObject"></li>
+                <li data-bind="visible: aspectList.length > 0">
+                    <span data-bind="html: AspectName, css: HtmlTextCssClass"></span>
+                    <ul data-bind="foreach: aspectList">
+                        <li data-bind="attr: {id: $parent.AspectName + CelestialObjectId}, css: $root.SetUpListItemElementForAspect($data)">
+                            <span data-bind="html: $root.FormatAspectCoordinates($data, $parent)"></span>
+                            <a href="#" data-bind="click: function() {$root.GetInterpretation($data, $parent, '#' + $parent.AspectName + CelestialObjectId)}, visible: BaseObjectValidForInterpretation && ThisObjectValidForInterpretation">
+                                <span class="fa fa-search"></span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>

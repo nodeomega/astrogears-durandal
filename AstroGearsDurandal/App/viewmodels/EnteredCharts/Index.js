@@ -13,6 +13,7 @@
         this.ChartTypeName = ko.observable(data.ChartTypeName);
         this.ChartTypeId = ko.observable(data.ChartTypeId);
         this.EnteredChartId = ko.observable(data.EnteredChartId);
+        this.ChartObjectCount = ko.observable(data.NumberOfChartObjects);
     }
 
     function BlankEnteredChartListing() {
@@ -24,6 +25,7 @@
         this.ChartTypeName = ko.observable();
         this.ChartTypeId = ko.observable();
         this.EnteredChartId = ko.observable(0);
+        this.ChartObjectCount = ko.observable(0);
     }
 
     var status = ko.observable();
@@ -31,6 +33,8 @@
     var createChart = ko.observable(new BlankEnteredChartListing());
     var editStatus = ko.observable();
     var editChart = ko.observable(new BlankEnteredChartListing());
+    var deleteStatus = ko.observable();
+    var deleteChart = ko.observable(new BlankEnteredChartListing());
     var charts = ko.observableArray([]);
     var numberOfPages = ko.observable();
     var pageNumbers = ko.observableArray([]);
@@ -44,6 +48,8 @@
         createChart: createChart,
         editStatus: editStatus,
         editChart: editChart,
+        deleteStatus: deleteStatus,
+        deleteChart: deleteChart,
         displayName: 'Entered Charts Listing',
         charts: charts,
         numberOfPages: numberOfPages,
@@ -117,6 +123,11 @@
             editChart(new EnteredChartListing(item));
             return false;
         },
+        openDeleteForm: function(item) {
+            $('#deleteEnteredChartModal').modal('show');
+            deleteChart(new EnteredChartListing(item));
+            return false;
+        },
         createNewChart: function (item) {
             var jqxhr = $.post('/EnteredCharts/CreateNewEnteredChart', {
                 subjectName: item.SubjectName(),
@@ -168,6 +179,30 @@
                     editStatus(common.ErrorIcon + ' Failed to update Entered Chart.<br />' + data)
                 }
             });
+            return false;
+        },
+        killChart: function (item) {
+            var jqxhr = $.post('/EnteredCharts/ConfirmDeleteOfEnteredChart', {
+                enteredChartId: item.EnteredChartId()
+            }).then(function (data) {
+                if (data === 'Success') {
+                    status(common.SuccessIcon + ' Entered Chart deleted successfully.');
+                    $('#deleteEnteredChartModal').modal('hide');
+
+                    $('#listingLoading').show();
+                    var reload = $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
+                        // alert(response);
+                        charts(response[0]);
+                        numberOfPages(response[1]);
+                        if (numberOfPages < currentPageNumber) {
+                            currentPageNumber(numberOfPages);
+                        }
+                        $('#listingLoading').hide();
+                    });
+                } else {
+                    deleteStatus(common.ErrorIcon + ' Failed to delete Entered Chart.<br />' + data)
+                }
+            })
             return false;
         }
     };

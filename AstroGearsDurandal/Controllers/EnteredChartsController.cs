@@ -110,15 +110,15 @@ namespace AstroGearsDurandal.Controllers
                     new
                         {
                             x.CelestialObjectId,
-                            x.CelestialObject.CelestialObjectName, 
-                            x.Sign.SignAbbreviation, 
-                            x.Sign.Element.HtmlTextCssClass, 
-                            x.Degrees, 
-                            x.Minutes, 
-                            x.Seconds, 
-                            x.Orientation.OrientationAbbreviation, 
-                            x.CelestialObject.CelestialObjectType.CelestialObjectTypeName, 
-                            x.CelestialObject.Draconic, 
+                            x.CelestialObject.CelestialObjectName,
+                            x.Sign.SignAbbreviation,
+                            x.Sign.Element.HtmlTextCssClass,
+                            x.Degrees,
+                            x.Minutes,
+                            x.Seconds,
+                            x.Orientation.OrientationAbbreviation,
+                            x.CelestialObject.CelestialObjectType.CelestialObjectTypeName,
+                            x.CelestialObject.Draconic,
                             House =
                         (chartHouses.Count > 0)
                             ? (chartHouses.LastOrDefault(
@@ -128,10 +128,13 @@ namespace AstroGearsDurandal.Controllers
                                ?? chartHouses.Last()).HouseId
                             : 0,
                             x.AngleId,
-                            BaseObjectValidForInterpretation = baseObject != null && (baseObject.CelestialObjectId > 0 || baseObject.AngleId != null),
+                            BaseObjectValidForInterpretation =
+                        baseObject != null && !baseObject.CelestialObject.Draconic
+                        && (baseObject.CelestialObjectId > 0 || baseObject.AngleId != null),
                             BaseObjectCelestialObjectId = (baseObject != null) ? baseObject.CelestialObjectId : 0,
                             BaseObjectAngleId = (baseObject != null) ? baseObject.AngleId : null,
-                            ThisObjectValidForInterpretation = x.CelestialObjectId > 0  || x.AngleId != null
+                            ThisObjectValidForInterpretation =
+                        !x.CelestialObject.Draconic && (x.CelestialObjectId > 0 || x.AngleId != null)
                         });
         }
 
@@ -311,6 +314,38 @@ namespace AstroGearsDurandal.Controllers
                         });
 
             return this.Json(thisUpdate, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Gets the entered chart for details.
+        /// </summary>
+        /// <param name="chartId">The chart identifier.</param>
+        /// <returns>
+        /// The entered chart data to be updated.
+        /// </returns>
+        [CanBeNull]
+        public JsonResult GetEnteredChartForDetails(int? chartId)
+        {
+            if (chartId == null)
+            {
+                return this.Json("Not Found for Details", JsonRequestBehavior.AllowGet);
+            }
+
+            var thisDetail =
+                this.db.EnteredCharts.Where(x => x.EnteredChartId == chartId.Value).ToList()
+                    .Select(
+                        x =>
+                        new
+                        {
+                            x.EnteredChartId,
+                            x.SubjectName,
+                            x.SubjectLocation,
+                            x.OriginDateTimeString,
+                            x.ChartTypeId,
+                            x.ChartType.ChartTypeName
+                        });
+
+            return this.Json(thisDetail, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -1721,10 +1756,18 @@ namespace AstroGearsDurandal.Controllers
         /// Gets the details draconic angle listing.
         /// </summary>
         /// <param name="chartId">The chart identifier.</param>
-        /// <returns>A listing of Draconic Chart Angles.</returns>
+        /// <param name="draconic">if set to <c>true</c> [draconic].</param>
+        /// <returns>
+        /// A listing of Draconic Chart Angles.
+        /// </returns>
         [CanBeNull]
-        public JsonResult GetDetailsDraconicAngleListing(int chartId)
+        public JsonResult GetDetailsDraconicAngleListing(int chartId, bool draconic)
         {
+            if (!draconic)
+            {
+                return this.Json("No Draconic", JsonRequestBehavior.AllowGet);
+            }
+
             var northNode =
                 this.db.ChartObjects.FirstOrDefault(
                     x => x.CelestialObject.CelestialObjectName == "True Node" && x.EnteredChartID == chartId);
@@ -1840,12 +1883,18 @@ namespace AstroGearsDurandal.Controllers
         /// </summary>
         /// <param name="chartId">The chart identifier.</param>
         /// <param name="houseSystemId">The house system identifier.</param>
+        /// <param name="draconic">if set to <c>true</c> [draconic].</param>
         /// <returns>
         /// JSON listing of the chart houses for the specified chart ID.
         /// </returns>
         [CanBeNull]
-        public JsonResult GetDetailsDraconicHouseListing(int chartId, byte houseSystemId)
+        public JsonResult GetDetailsDraconicHouseListing(int chartId, byte houseSystemId, bool draconic)
         {
+            if (!draconic)
+            {
+                return this.Json("No Draconic", JsonRequestBehavior.AllowGet);
+            }
+
             var northNode =
                 this.db.ChartObjects.FirstOrDefault(
                     x => x.CelestialObject.CelestialObjectName == "True Node" && x.EnteredChartID == chartId);
@@ -2115,7 +2164,7 @@ namespace AstroGearsDurandal.Controllers
         [CanBeNull]
         public JsonResult GetEnteredChartsListing(int pageNum, int entriesPerPage)
         {
-            var enteredCharts = this.db.EnteredCharts.Include(e => e.ChartType);
+            var enteredCharts = this.db.EnteredCharts.Include(e => e.ChartType).Include(e => e.ChartObjects);
 
             var page =
                 enteredCharts.OrderBy(x => x.ChartType.ChartTypeId)
@@ -2142,7 +2191,8 @@ namespace AstroGearsDurandal.Controllers
                                           x.OriginDateTimeUnknown,
                                           x.ChartType.ChartTypeName,
                                           x.ChartTypeId,
-                                          x.EnteredChartId
+                                          x.EnteredChartId,
+                                          NumberOfChartObjects = x.ChartObjects.Count()
                                       })
                               : null;
 
