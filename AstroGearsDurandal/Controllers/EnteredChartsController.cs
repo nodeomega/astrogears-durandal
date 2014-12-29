@@ -343,7 +343,7 @@ namespace AstroGearsDurandal.Controllers
                             x.OriginDateTimeString,
                             x.ChartTypeId,
                             x.ChartType.ChartTypeName
-                        });
+                        }).FirstOrDefault();
 
             return this.Json(thisDetail, JsonRequestBehavior.AllowGet);
         }

@@ -1,6 +1,4 @@
-﻿// onclick="EnteredChartDetails.GetListing(@Html.DisplayFor(model => model.EnteredChartId));EnteredChartDetails.GetHouseListing(@Html.DisplayFor(model => model.EnteredChartId))" 
-
-define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], function (http, app, ko, common) {
+﻿define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], function (http, app, ko, common) {
     //Note: This module exports an object.
     //That means that every module that "requires" it will get the same object instance.
     //If you wish to be able to create multiple instances, instead export a function.
@@ -14,6 +12,54 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
         this.EnteredChartId = ko.observable(data.EnteredChartId);
     }
 
+    function AspectBaseListing(data) {
+        var array = [];
+        $.each(data, function (i, item) {
+            if (!common.IsNullOrUndefined(item.aspectList)) {
+                array.push(new AspectBase(item));
+            }
+        });
+
+        return array;
+    }
+
+    function AspectListing(data) {
+        var array = []
+        $.each(data, function (i, item) {
+            array.push(new AspectListingItem(item));
+        });
+
+        return array;
+    }
+
+    function AspectBase(item) {
+        this.AspectId = ko.observable(item.AspectId);
+        this.AspectName = ko.observable(item.AspectName);
+        this.HtmlTextCssClass = ko.observable(item.HtmlTextCssClass);
+        this.aspectList = ko.observable(new AspectListing(item.aspectList));
+    }
+
+    function AspectListingItem(item) {
+        this.CelestialObjectName = ko.observable(item.CelestialObjectName);
+        this.CelestialObjectTypeName = ko.observable(item.CelestialObjectTypeName);
+        this.Draconic = ko.observable(item.Draconic);
+        this.Degrees = ko.observable(item.Degrees);
+        this.HtmlTextCssClass = ko.observable(item.HtmlTextCssClass);
+        this.SignAbbreviation = ko.observable(item.SignAbbreviation);
+        this.Minutes = ko.observable(item.Minutes);
+        this.Seconds = ko.observable(item.Seconds);
+        this.OrientationAbbreviation = ko.observable(item.OrientationAbbreviation);
+        this.House = ko.observable(item.House);
+        this.BaseObjectValidForInterpretation = ko.observable(item.BaseObjectValidForInterpretation);
+        this.ThisObjectValidForInterpretation = ko.observable(item.ThisObjectValidForInterpretation);
+        this.BaseObjectCelestialObjectId = ko.observable(item.BaseObjectCelestialObjectId);
+        this.BaseObjectAngleId = ko.observable(item.BaseObjectAngleId);
+        this.CelestialObjectId = ko.observable(item.CelestialObjectId);
+        this.AngleId = ko.observable(item.AngleId);
+
+        this.InterpretationList = ko.observable([]);
+    }
+
     var AspectItem = ko.observable(),
         AspectList = ko.observableArray([])
         includeDraconic = ko.observable(false),
@@ -24,8 +70,9 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
         chartId = ko.observable(0);
 
     return {
+        enteredChartListing: ko.observable(),
         settings: ko.observable({ cacheViews: false }),
-        displayName: 'AstroGears Details Listing',
+        displayName: 'Chart Details',
         includeDraconic: includeDraconic,
         includeArabic: includeArabic,
         includeAsteroids: includeAsteroids,
@@ -49,10 +96,13 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
             var that = this;
             $('#chartLoading').show();
             return $.when(
+                $.getJSON('/EnteredCharts/GetEnteredChartForDetails', { chartId: context }),
                 $.getJSON('/EnteredCharts/GetDetailsChartListing', { id: context, draconic: false, arabic: false, asteroids: false, stars: false, houseSystemId: 0 }),
                 $.getJSON('/EnteredCharts/GetDetailsHouseListing', { chartId: context, houseSystemId: 0 }),
                 $.getJSON('/EnteredCharts/GetDetailsAngleListing', { chartId: context })
-                ).then(function (listingResponse, houseResponse, angleResponse) {
+                ).then(function (detailsResponse, listingResponse, houseResponse, angleResponse) {
+                    that.enteredChartListing(new EnteredChartListing(detailsResponse[0]));
+
                     that.chartObjects(listingResponse[0]);
                     that.thisnum(context)
 
@@ -126,7 +176,7 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
                          houseSystemId: chartHouseSystemId
                      }).then(function (data) {
                          $('#aspectLoading').hide();
-                         AspectList(data);
+                         AspectList(new AspectBaseListing(data));
                      });
             }
             else if (item.CelestialObjectTypeName === 'Arabic Part') {
@@ -142,7 +192,7 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
                         houseSystemId: chartHouseSystemId
                     }).then(function (data) {
                         $('#aspectLoading').hide();
-                        AspectList(data);
+                        AspectList(new AspectBaseListing(data));
                     });
             }
             else if (item.CelestialObjectTypeName === 'Angle/House Cusp') {
@@ -158,7 +208,7 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
                         houseSystemId: chartHouseSystemId
                     }).then(function (data) {
                         $('#aspectLoading').hide();
-                        AspectList(data);
+                        AspectList(new AspectBaseListing(data));
                     });
             }
             else {
@@ -173,7 +223,7 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
                         houseSystemId: chartHouseSystemId
                     }).then(function (data) {
                         $('#aspectLoading').hide();
-                        AspectList(data);
+                        AspectList(new AspectBaseListing(data));
                     });
             }
             return false;
@@ -190,11 +240,11 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
             //event.cancelBubble = true;
             //event.stopPropagation();
 
-            var interpretationIds = (item.BaseObjectValidForInterpretation && item.ThisObjectValidForInterpretation) ? SetUpIdsForEntry(
-                item.BaseObjectCelestialObjectId, (item.BaseObjectCelestialObjectId !== 0) ? true : false,
-                item.BaseObjectAngleId, (!common.IsNullOrUndefined(item.BaseObjectAngleId)) ? true : false,
-                item.CelestialObjectId, (item.CelestialObjectId !== 0) ? true : false,
-                item.AngleId, (!common.IsNullOrUndefined(item.AngleId)) ? true : false
+            var interpretationIds = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? SetUpIdsForEntry(
+                item.BaseObjectCelestialObjectId(), (item.BaseObjectCelestialObjectId() !== 0) ? true : false,
+                item.BaseObjectAngleId(), (!common.IsNullOrUndefined(item.BaseObjectAngleId())) ? true : false,
+                item.CelestialObjectId(), (item.CelestialObjectId() !== 0) ? true : false,
+                item.AngleId(), (!common.IsNullOrUndefined(item.AngleId())) ? true : false
                 )
                 : null;
 
@@ -204,44 +254,29 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
 
             var celestialObjectId1 = interpretationIds[0],
                 angleId1 = interpretationIds[1],
-                aspectId = parent.AspectId,
+                aspectId = parent.AspectId(),
                 celestialObjectId2 = interpretationIds[2],
                 angleId2 = interpretationIds[3];
 
-            if ($(tag + ' > ul').length > 0) {
-                $(tag + ' > ul').remove();
-                $(tag + ' > a > .fa').removeClass('action-successful');
+            if (!common.IsNullOrUndefined(item.InterpretationList()) && item.InterpretationList().length > 0)
+            {
+                item.InterpretationList([]);
                 return;
             }
-            $(tag + ' > a > .fa').addClass('action-successful');
 
-            var interpretationList = $('<ul class="detail-interpretation"/>');
-
-            var jqxhr = $.getJSON('/AspectInterpretations/GetSingleChartDetailAspectInterpretationRequest', {
+            $.when($.getJSON('/AspectInterpretations/GetSingleChartDetailAspectInterpretationRequest', {
                 celestialObjectId1: celestialObjectId1,
                 angleId1: angleId1,
                 aspectId: aspectId,
                 celestialObjectId2: celestialObjectId2,
                 angleId2: angleId2
-            }).done(function (data) {
-                if (data.length > 0) {
-                    $.each(data, function (i, item) {
-                        interpretationList.append($('<li/>').html(item.Interpretation.replace(/\n/g, '<br>')
-                            + (!common.IsNullOrUndefined(item.CitationUrl)
-                            ? ' (' + (item.CitationUrl.substring(0, 4) === 'http'
-                            ? '<a href="' + item.CitationUrl + '" target="_blank">' + item.CitationUrl + '</a>'
-                            : item.CitationUrl) + ')'
-                            : '')));
-                    });
+            })).then(function (response) {
+                if (response.length > 0) {
+                    item.InterpretationList(response);
                 } else {
-                    interpretationList.append($('<li/>').html('(no interpretation available)'));
+                    item.InterpretationList([new function () { this.Interpretation = '(No interpretation available).', this.CitationUrl = null; }]);
                 }
-            }).fail(function (jqxhr, textStatus, error) {
-                var err = textStatus + ", " + error;
-                console.log("Interpretation Load failure: " + err);
             });
-
-            $(tag).append(interpretationList);
             return false;
         }
     };
@@ -345,21 +380,21 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
     }
 
     function SetUpListItemElementForAspect(aspectItem) {
-        switch (aspectItem.CelestialObjectTypeName) {
+        switch (aspectItem.CelestialObjectTypeName()) {
             case 'Arabic Part':
-                return (aspectItem.Draconic === true) ? "arabic-part draconic" : "arabic-part";
+                return (aspectItem.Draconic() === true) ? "arabic-part draconic" : "arabic-part";
                 break;
             case 'Major Planet/Luminary':
-                return (aspectItem.Draconic === true) ? "planet-luminary draconic" : "planet-luminary";
+                return (aspectItem.Draconic() === true) ? "planet-luminary draconic" : "planet-luminary";
                 break;
             case 'Fixed Star':
                 return "fixed-star";
                 break;
             case 'Angle/House Cusp':
-                return (aspectItem.Draconic === true) ?  "house-cusp draconic" : "house-cusp";
+                return (aspectItem.Draconic() === true) ? "house-cusp draconic" : "house-cusp";
                 break;
             default:
-                return (aspectItem.Draconic === true) ?  "draconic" : "";
+                return (aspectItem.Draconic() === true) ? "draconic" : "";
                 break;
         }
     }
@@ -390,32 +425,32 @@ define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], f
     }
 
     function FormatAspectCoordinates(item, parent) {
-        var newIdName = parent.AspectName + item.CelestialObjectId.toString();
+        var newIdName = parent.AspectName + item.CelestialObjectId().toString();
         
-        var orientationString = (!!item.OrientationAbbreviation) ? ' ' + item.OrientationAbbreviation : '';
-        var houseString = (item.House != 0) ? ' | House ' + item.House : '';
+        var orientationString = (!!item.OrientationAbbreviation()) ? ' ' + item.OrientationAbbreviation() : '';
+        var houseString = (item.House() != 0) ? ' | House ' + item.House() : '';
 
-        var interpretationIds = (item.BaseObjectValidForInterpretation && item.ThisObjectValidForInterpretation) ? SetUpIdsForEntry(
-            item.BaseObjectCelestialObjectId, (item.BaseObjectCelestialObjectId !== 0) ? true : false,
-            item.BaseObjectAngleId, (!common.IsNullOrUndefined(item.BaseObjectAngleId)) ? true : false,
-            item.CelestialObjectId, (item.CelestialObjectId !== 0) ? true : false,
-            item.AngleId, (!common.IsNullOrUndefined(item.AngleId)) ? true : false
+        var interpretationIds = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? SetUpIdsForEntry(
+            item.BaseObjectCelestialObjectId(), (item.BaseObjectCelestialObjectId() !== 0) ? true : false,
+            item.BaseObjectAngleId(), (!common.IsNullOrUndefined(item.BaseObjectAngleId())) ? true : false,
+            item.CelestialObjectId(), (item.CelestialObjectId() !== 0) ? true : false,
+            item.AngleId(), (!common.IsNullOrUndefined(item.AngleId())) ? true : false
             )
             : null;
 
-        var interpretationLink = (item.BaseObjectValidForInterpretation && item.ThisObjectValidForInterpretation) ? ' <a href="#" data-bind="click: $root.GetInterpretation(\'#' + newIdName + '\', ' +
+        var interpretationLink = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? ' <a href="#" data-bind="click: $root.GetInterpretation(\'#' + newIdName + '\', ' +
             interpretationIds[0] + ', ' + interpretationIds[1] + ', ' + parent.AspectId + ', ' + interpretationIds[2] + ', ' + interpretationIds[3] + ');return false;"><span class="fa fa-search"></span></a>' : '';
 
-        return item.CelestialObjectName
+        return item.CelestialObjectName()
             + ' ('
-            + item.Degrees
+            + item.Degrees()
             + '° <span class="'
-            + item.HtmlTextCssClass + '">'
-            + item.SignAbbreviation
+            + item.HtmlTextCssClass() + '">'
+            + item.SignAbbreviation()
             + '</span> '
-            + item.Minutes
+            + item.Minutes()
             + '\' '
-            + item.Seconds
+            + item.Seconds()
             + '"'
             + orientationString
             + houseString

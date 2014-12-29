@@ -1,18 +1,15 @@
 ﻿<section>
-    <h2 data-bind="text: displayName"></h2>
-    <input type="hidden" id="chartId" />
+    <h1 data-bind="text: displayName"></h1>
+    <input type="hidden" id="chartId" data-bind="value: enteredChartListing().EnteredChartId()" />
     <div class="container">
-        <h4>Bullshit Chart for Nobody</h4>
+        <h4><span data-bind="text: enteredChartListing().ChartTypeName()"></span> Chart for <span data-bind="text: enteredChartListing().SubjectName()"></span></h4>
         <hr />
         <div class="col-md-6">
             <dl class="dl-horizontal">
                 <dt>
                     Birth/Event Location
                 </dt>
-
-                <dd>
-                    Nowhwere <span data-bind="text: thisnum"></span>
-                </dd>
+                <dd data-bind="text: enteredChartListing().SubjectLocation()"></dd>
             </dl>
         </div>
         <div class="col-md-6">
@@ -20,10 +17,7 @@
                 <dt>
                     Birth/Event Time
                 </dt>
-
-                <dd>
-                    Who fuckin cares?
-                </dd>
+                <dd data-bind="text: enteredChartListing().OriginDateTimeString()"></dd>
             </dl>
         </div>
     </div>
@@ -142,14 +136,21 @@
             </div>
             <div id="aspecttarget" style="font-size:1.5em;" data-bind="html: AspectItem"></div>
             <ul id="aspectlist" data-bind="foreach: AspectList">
-                <li data-bind="visible: aspectList.length > 0">
-                    <span data-bind="html: AspectName, css: HtmlTextCssClass"></span>
-                    <ul data-bind="foreach: aspectList">
-                        <li data-bind="attr: {id: $parent.AspectName + CelestialObjectId}, css: $root.SetUpListItemElementForAspect($data)">
+                <li data-bind="visible: aspectList().length > 0">
+                    <span data-bind="html: AspectName(), css: HtmlTextCssClass()"></span>
+                    <ul data-bind="foreach: aspectList()">
+                        <li data-bind="attr: {id: $parent.AspectName + CelestialObjectId()}, css: $root.SetUpListItemElementForAspect($data)">
                             <span data-bind="html: $root.FormatAspectCoordinates($data, $parent)"></span>
-                            <a href="#" data-bind="click: function() {$root.GetInterpretation($data, $parent, '#' + $parent.AspectName + CelestialObjectId)}, visible: BaseObjectValidForInterpretation && ThisObjectValidForInterpretation">
+                            <a href="#" data-bind="click: function() {$root.GetInterpretation($data, $parent, '#' + $parent.AspectName + CelestialObjectId())}, visible: BaseObjectValidForInterpretation() && ThisObjectValidForInterpretation(), css: { 'action-successful': InterpretationList() !== null && InterpretationList() !== undefined && InterpretationList().length > 0}">
                                 <span class="fa fa-search"></span>
                             </a>
+                            <ul data-bind="foreach: InterpretationList()">
+                                <li class="detail-interpretation">
+                                    <span data-bind="html: Interpretation.replace(/\n/g, '<br>')"></span> 
+                                    <a data-bind="attr: {href: CitationUrl, target: '_blank' }, text: CitationUrl, visible: CitationUrl !== null && CitationUrl !== undefined && CitationUrl.substring(0, 4) === 'http'"></a>
+                                    <span data-bind="html: CitationUrl, visible: CitationUrl !== null && CitationUrl !== undefined && CitationUrl.substring(0, 4) !== 'http'"></span>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </li>
