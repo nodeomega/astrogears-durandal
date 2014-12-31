@@ -1,4 +1,4 @@
-﻿define(['plugins/router', 'durandal/app'], function (router, app) {
+﻿define(['plugins/router', 'durandal/app', 'knockout'], function (router, app, ko) {
     return {
         copyright: ko.observable('&copy; ' + new Date().getFullYear() + ' - AstroGears'),
         router: router,

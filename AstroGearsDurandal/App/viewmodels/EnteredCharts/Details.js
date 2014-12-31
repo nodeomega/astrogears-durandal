@@ -1,4 +1,4 @@
-﻿define(['plugins/http', 'durandal/app', 'knockout', 'scripts/common-library'], function (http, app, ko, common) {
+﻿define(["plugins/http", "durandal/app", "knockout", "scripts/common-library"], function (http, app, ko, common) {
     //Note: This module exports an object.
     //That means that every module that "requires" it will get the same object instance.
     //If you wish to be able to create multiple instances, instead export a function.
@@ -10,6 +10,15 @@
         this.OriginDateTimeString = ko.observable(data.OriginDateTimeString);
         this.ChartTypeName = ko.observable(data.ChartTypeName);
         this.EnteredChartId = ko.observable(data.EnteredChartId);
+    }
+
+    function EnteredChartCoordinates(data) {
+        this.Degrees = ko.observable(data.Degrees);
+        this.SignId = ko.observable(data.SignId);
+        this.Minutes = ko.observable(data.Minutes);
+        this.Seconds = ko.observable(data.Seconds);
+        this.OrientationId = ko.observable(data.OrientationId);
+        this.ChartObjectId = ko.observable(data.ChartObjectId);
     }
 
     function AspectBaseListing(data) {
@@ -24,7 +33,7 @@
     }
 
     function AspectListing(data) {
-        var array = []
+        var array = [];
         $.each(data, function (i, item) {
             array.push(new AspectListingItem(item));
         });
@@ -60,16 +69,25 @@
         this.InterpretationList = ko.observable([]);
     }
 
-    var AspectItem = ko.observable(),
-        AspectList = ko.observableArray([])
+    var status = ko.observable(),
+        AspectItem = ko.observable(),
+        AspectList = ko.observableArray([]),
         includeDraconic = ko.observable(false),
         includeArabic = ko.observable(false),
         includeAsteroids = ko.observable(false),
         includeStars = ko.observable(false),
         chartHouseSystemId = ko.observable(0),
-        chartId = ko.observable(0);
+        chartId = ko.observable(0),
+        chartObjects = ko.observableArray([]),
+        signsOptions = ko.observableArray([]),
+        orientationsOptions = ko.observableArray([]),
+        editSignId = ko.observable(0),
+        editOrientationId = ko.observable(0),
+        editCoordinates = ko.observable(),
+        editStatus = ko.observable();
 
     return {
+        status: status,
         enteredChartListing: ko.observable(),
         settings: ko.observable({ cacheViews: false }),
         displayName: 'Chart Details',
@@ -77,8 +95,10 @@
         includeArabic: includeArabic,
         includeAsteroids: includeAsteroids,
         includeStars: includeStars,
+        signsOptions: signsOptions,
+        orientationsOptions: orientationsOptions,
         chartHouseSystemId: chartHouseSystemId,
-        chartObjects: ko.observableArray([]),
+        chartObjects: chartObjects,
         thisnum: ko.observable(0),
         HouseList: ko.observableArray([]),
         AngleList: ko.observableArray([]),
@@ -89,6 +109,10 @@
         AspectList: AspectList,
         AspectObjectList: ko.observableArray([]),
         chartId: chartId,
+        editSignId: editSignId,
+        editOrientationId: editOrientationId,
+        editCoordinates: editCoordinates,
+        editStatus: editStatus,
         activate: function (context) {
             //the router's activator calls this function and waits for it to complete before proceeding
             this.chartObjects.removeAll();
@@ -97,14 +121,19 @@
             $('#chartLoading').show();
             return $.when(
                 $.getJSON('/EnteredCharts/GetEnteredChartForDetails', { chartId: context }),
+                $.getJSON('Common/GetSignsList'),
+                $.getJSON('Common/GetOrientationsList'),
                 $.getJSON('/EnteredCharts/GetDetailsChartListing', { id: context, draconic: false, arabic: false, asteroids: false, stars: false, houseSystemId: 0 }),
                 $.getJSON('/EnteredCharts/GetDetailsHouseListing', { chartId: context, houseSystemId: 0 }),
                 $.getJSON('/EnteredCharts/GetDetailsAngleListing', { chartId: context })
-                ).then(function (detailsResponse, listingResponse, houseResponse, angleResponse) {
+                ).then(function (detailsResponse, signsResponse, orientationsResponse, listingResponse, houseResponse, angleResponse) {
                     that.enteredChartListing(new EnteredChartListing(detailsResponse[0]));
 
                     that.chartObjects(listingResponse[0]);
-                    that.thisnum(context)
+                    that.thisnum(context);
+
+                    that.signsOptions(signsResponse[0]);
+                    that.orientationsOptions(orientationsResponse[0]);
 
                     that.HouseList(houseResponse[0]);
                     that.AngleList(angleResponse[0]);
@@ -114,11 +143,11 @@
                     $('#chartLoading').hide();
                 });
         },
-        editLink: function (item) {
-            EnteredCharts(item.EnteredChartId);
+        editLink: function () {
+            //EnteredCharts(item.EnteredChartId);
             return false;
         },
-        refreshChartData: function (item) {
+        refreshChartData: function () {
             var that = this;
             that.chartObjects.removeAll();
             $('#chartLoading').show();
@@ -157,14 +186,14 @@
         },
         dynamicChartObjectCss: dynamicChartObjectCss,
         CoordinateString: CoordinateString,
-        GetAspects: function (item, event) {
+        GetAspects: function (item) {
             //event.cancelBubble = true;
             //event.stopPropagation();
             AspectList.removeAll();
             $('#aspectLoading').show();
             AspectItem('Aspects to ' + item.CelestialObjectName + ' (' + CoordinateString(item) + ')');
             if (item.Draconic) {
-                var jqxhr = $.getJSON("/EnteredCharts/GetAspectChartObjectsForDraconicObject",
+                $.getJSON("/EnteredCharts/GetAspectChartObjectsForDraconicObject",
                      {
                          chartId: chartId,
                          draconicName: item.CelestialObjectName,
@@ -178,9 +207,8 @@
                          $('#aspectLoading').hide();
                          AspectList(new AspectBaseListing(data));
                      });
-            }
-            else if (item.CelestialObjectTypeName === 'Arabic Part') {
-                var jqxhr = $.getJSON("/EnteredCharts/GetAspectChartObjectsForArabicPart",
+            } else if (item.CelestialObjectTypeName === 'Arabic Part') {
+                $.getJSON("/EnteredCharts/GetAspectChartObjectsForArabicPart",
                     {
                         chartId: chartId,
                         arabicPartName: item.CelestialObjectName,
@@ -194,9 +222,8 @@
                         $('#aspectLoading').hide();
                         AspectList(new AspectBaseListing(data));
                     });
-            }
-            else if (item.CelestialObjectTypeName === 'Angle/House Cusp') {
-                var jqxhr = $.getJSON("/EnteredCharts/GetAspectChartObjectsForAngle",
+            } else if (item.CelestialObjectTypeName === 'Angle/House Cusp') {
+                $.getJSON("/EnteredCharts/GetAspectChartObjectsForAngle",
                     {
                         chartId: chartId,
                         angleName: item.CelestialObjectName,
@@ -210,9 +237,8 @@
                         $('#aspectLoading').hide();
                         AspectList(new AspectBaseListing(data));
                     });
-            }
-            else {
-                var jqxhr = $.getJSON("/EnteredCharts/GetAspectChartObjects",
+            } else {
+                $.getJSON("/EnteredCharts/GetAspectChartObjects",
                     {
                         id: item.ChartObjectId,
                         chartId: chartId,
@@ -228,7 +254,7 @@
             }
             return false;
         },
-        EditThisShit: EditThisShit,
+        openEditCoordinatesForm: openEditCoordinatesForm,
         isCelestialObject: isCelestialObject,
         HouseCoordinateString: HouseCoordinateString,
         HouseLabel: HouseLabel,
@@ -236,7 +262,7 @@
         SetUpListItemElementForAspect: SetUpListItemElementForAspect,
         SetUpIdsForEntry: SetUpIdsForEntry,
         FormatAspectCoordinates: FormatAspectCoordinates,
-        GetInterpretation: function (item, parent, tag, event) {
+        GetInterpretation: function (item, parent) {
             //event.cancelBubble = true;
             //event.stopPropagation();
 
@@ -274,11 +300,43 @@
                 if (response.length > 0) {
                     item.InterpretationList(response);
                 } else {
-                    item.InterpretationList([new function () { this.Interpretation = '(No interpretation available).', this.CitationUrl = null; }]);
+                    item.InterpretationList([function () { this.Interpretation = '(No interpretation available).', this.CitationUrl = null; }]);
                 }
             });
             return false;
-        }
+        },
+        updateCoordinates: function (item) {
+            $.post('/EnteredCharts/UpdateChartObjectForEnteredChart', {
+                chartObjectId: item.ChartObjectId(),
+                degrees: item.Degrees(),
+                signId: item.SignId(),
+                minutes: item.Minutes(),
+                seconds: item.Seconds(),
+                orientationId: item.OrientationId()
+            }).then(function (data) {
+                if (data === 'Success') {
+                    status(common.SuccessIcon + ' Coordinates updated successfully.');
+
+                    $('#editCoordinatesModal').modal('hide');
+
+                    $('#chartLoading').show();
+                    $.getJSON('/EnteredCharts/GetDetailsChartListing', {
+                        id: chartId,
+                        draconic: includeDraconic,
+                        arabic: includeArabic,
+                        asteroids: includeAsteroids,
+                        stars: includeStars,
+                        houseSystemId: chartHouseSystemId
+                    }).then(function (response) {
+                        chartObjects(response);
+                        $('#chartLoading').hide();
+                    });
+                } else {
+                    editStatus(common.ErrorIcon + ' Failed to update Coordinates.<br />' + data);
+                }
+            });
+            return false;
+        },
     };
 
     function HouseCoordinateString(item) {
@@ -304,14 +362,6 @@
         return angles[item.AngleId];
     }
 
-    function draconicRow(item) {
-        if (item.Draconic) {
-            return 'draconic';
-        } else {
-            return null;
-        }
-    }
-
     function dynamicChartObjectCss(item) {
         switch (item.CelestialObjectTypeName) {
             case 'Arabic Part':
@@ -330,7 +380,6 @@
                 break;
             case 'Fixed Star':
                 return 'fixed-star';
-                break;
             case 'Angle/House Cusp':
                 if (item.Draconic === true) {
                     return 'house-cusp draconic';
@@ -365,16 +414,18 @@
         return returnValue;
     }
 
-    function EditThisShit(item) {
+    function openEditCoordinatesForm(item) {
         if (!item.Draconic && item.CelestialObjectTypeName !== 'Arabic Part' && item.CelestialObjectTypeName !== 'Angle/House Cusp')
-            return 'FuckOff();'
+        {
+            $("#editCoordinatesModal").modal("show");
+            editCoordinates(new EnteredChartCoordinates(item));
+        }
     }
 
     function isCelestialObject(item) {
         if (item.ChartObjectId > 0 && !item.Draconic) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -383,19 +434,14 @@
         switch (aspectItem.CelestialObjectTypeName()) {
             case 'Arabic Part':
                 return (aspectItem.Draconic() === true) ? "arabic-part draconic" : "arabic-part";
-                break;
             case 'Major Planet/Luminary':
                 return (aspectItem.Draconic() === true) ? "planet-luminary draconic" : "planet-luminary";
-                break;
             case 'Fixed Star':
                 return "fixed-star";
-                break;
             case 'Angle/House Cusp':
                 return (aspectItem.Draconic() === true) ? "house-cusp draconic" : "house-cusp";
-                break;
             default:
                 return (aspectItem.Draconic() === true) ? "draconic" : "";
-                break;
         }
     }
 
@@ -424,22 +470,22 @@
         return null;
     }
 
-    function FormatAspectCoordinates(item, parent) {
-        var newIdName = parent.AspectName + item.CelestialObjectId().toString();
+    function FormatAspectCoordinates(item) { //, parent) {
+        //var newIdName = parent.AspectName + item.CelestialObjectId().toString();
         
         var orientationString = (!!item.OrientationAbbreviation()) ? ' ' + item.OrientationAbbreviation() : '';
-        var houseString = (item.House() != 0) ? ' | House ' + item.House() : '';
+        var houseString = (item.House() !== 0) ? ' | House ' + item.House() : '';
 
-        var interpretationIds = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? SetUpIdsForEntry(
-            item.BaseObjectCelestialObjectId(), (item.BaseObjectCelestialObjectId() !== 0) ? true : false,
-            item.BaseObjectAngleId(), (!common.IsNullOrUndefined(item.BaseObjectAngleId())) ? true : false,
-            item.CelestialObjectId(), (item.CelestialObjectId() !== 0) ? true : false,
-            item.AngleId(), (!common.IsNullOrUndefined(item.AngleId())) ? true : false
-            )
-            : null;
+        //var interpretationIds = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? SetUpIdsForEntry(
+        //    item.BaseObjectCelestialObjectId(), (item.BaseObjectCelestialObjectId() !== 0) ? true : false,
+        //    item.BaseObjectAngleId(), (!common.IsNullOrUndefined(item.BaseObjectAngleId())) ? true : false,
+        //    item.CelestialObjectId(), (item.CelestialObjectId() !== 0) ? true : false,
+        //    item.AngleId(), (!common.IsNullOrUndefined(item.AngleId())) ? true : false
+        //    )
+        //    : null;
 
-        var interpretationLink = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? ' <a href="#" data-bind="click: $root.GetInterpretation(\'#' + newIdName + '\', ' +
-            interpretationIds[0] + ', ' + interpretationIds[1] + ', ' + parent.AspectId + ', ' + interpretationIds[2] + ', ' + interpretationIds[3] + ');return false;"><span class="fa fa-search"></span></a>' : '';
+        //var interpretationLink = (item.BaseObjectValidForInterpretation() && item.ThisObjectValidForInterpretation()) ? ' <a href="#" data-bind="click: $root.GetInterpretation(\'#' + newIdName + '\', ' +
+        //    interpretationIds[0] + ', ' + interpretationIds[1] + ', ' + parent.AspectId + ', ' + interpretationIds[2] + ', ' + interpretationIds[3] + ');return false;"><span class="fa fa-search"></span></a>' : '';
 
         return item.CelestialObjectName()
             + ' ('

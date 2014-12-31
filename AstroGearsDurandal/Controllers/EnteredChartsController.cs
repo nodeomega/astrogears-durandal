@@ -10,16 +10,12 @@ namespace AstroGearsDurandal.Controllers
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
     using System.Web.Mvc;
 
     using AstroGearsDurandal.Filters;
     using AstroGearsDurandal.Models;
 
     using JetBrains.Annotations;
-
-    using WebGrease.Css.Extensions;
 
     /// <summary>
     ///     Entered Charts Controller.
@@ -346,18 +342,6 @@ namespace AstroGearsDurandal.Controllers
                         }).FirstOrDefault();
 
             return this.Json(thisDetail, JsonRequestBehavior.AllowGet);
-        }
-
-        /// <summary>
-        /// Gets the chart types list.
-        /// </summary>
-        /// <returns>A JSON array of the Chart Types.</returns>
-        [CanBeNull]
-        public JsonResult GetChartTypesList()
-        {
-            var aspectTypes = this.db.ChartTypes.Select(x => new { x.ChartTypeId, x.ChartTypeName });
-
-            return this.Json(aspectTypes, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -1731,10 +1715,12 @@ namespace AstroGearsDurandal.Controllers
                                 x.CelestialObject.CelestialObjectName, 
                                 x.Sign.SignAbbreviation, 
                                 x.Sign.Element.HtmlTextCssClass, 
+                                x.SignId,
                                 x.Degrees, 
                                 x.Minutes, 
                                 x.Seconds, 
                                 x.Orientation.OrientationAbbreviation, 
+                                x.OrientationId,
                                 x.CelestialObject.CelestialObjectType.CelestialObjectTypeName, 
                                 x.CelestialObject.Draconic, 
                                 House =
@@ -2142,17 +2128,6 @@ namespace AstroGearsDurandal.Controllers
                     .FirstOrDefault();
 
             return this.Json(thisObject, JsonRequestBehavior.AllowGet);
-        }
-
-        /// <summary>
-        ///     Gets the signs list.
-        /// </summary>
-        /// <returns>A JSON array of signs for the drop-down-list.</returns>
-        [CanBeNull]
-        public JsonResult GetSignsList()
-        {
-            var signs = this.db.Signs.Select(x => new { x.SignId, x.SignAbbreviation }).ToList();
-            return this.Json(signs, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>

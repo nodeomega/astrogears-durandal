@@ -79,7 +79,7 @@
                 $('#listingLoading').hide();
             });
         },
-        selectNumberPerPage: function (item) {
+        selectNumberPerPage: function () {
             var that = this;
             $('#listingLoading').show();
             //return http.jsonp('http://astrogears/EnteredCharts/GetEnteredChartsListing', { pageNum: 1, entriesPerPage: $('#resultsPerPage').val() }, 'callback').then(function (response) {
@@ -129,7 +129,7 @@
             return false;
         },
         createNewChart: function (item) {
-            var jqxhr = $.post('/EnteredCharts/CreateNewEnteredChart', {
+            $.post('/EnteredCharts/CreateNewEnteredChart', {
                 subjectName: item.SubjectName(),
                 subjectLocation: item.SubjectLocation(),
                 originDateTime: item.OriginDateTime(),
@@ -142,20 +142,20 @@
                     $('#createEnteredChartModal').modal('hide');
 
                     $('#listingLoading').show();
-                    var reload = $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
+                    $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
                         // alert(response);
                         charts(response[0]);
                         numberOfPages(response[1]);
                         $('#listingLoading').hide();
                     });
                 } else {
-                    createStatus(common.ErrorIcon + ' Failed to create new Entered Chart.<br />' + data)
+                    createStatus(common.ErrorIcon + ' Failed to create new Entered Chart.<br />' + data);
                 }
             });
             return false;
         },
         updateChart: function (item) {
-            var jqxhr = $.post('/EnteredCharts/UpdateEnteredChart', {
+            $.post('/EnteredCharts/UpdateEnteredChart', {
                 enteredChartId: item.EnteredChartId(),
                 subjectName: item.SubjectName(),
                 subjectLocation: item.SubjectLocation(),
@@ -169,20 +169,20 @@
                     $('#editEnteredChartModal').modal('hide');
 
                     $('#listingLoading').show();
-                    var reload = $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
+                    $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
                         // alert(response);
                         charts(response[0]);
                         numberOfPages(response[1]);
                         $('#listingLoading').hide();
                     });
                 } else {
-                    editStatus(common.ErrorIcon + ' Failed to update Entered Chart.<br />' + data)
+                    editStatus(common.ErrorIcon + ' Failed to update Entered Chart.<br />' + data);
                 }
             });
             return false;
         },
         killChart: function (item) {
-            var jqxhr = $.post('/EnteredCharts/ConfirmDeleteOfEnteredChart', {
+            $.post('/EnteredCharts/ConfirmDeleteOfEnteredChart', {
                 enteredChartId: item.EnteredChartId()
             }).then(function (data) {
                 if (data === 'Success') {
@@ -190,8 +190,7 @@
                     $('#deleteEnteredChartModal').modal('hide');
 
                     $('#listingLoading').show();
-                    var reload = $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
-                        // alert(response);
+                    $.getJSON('/EnteredCharts/GetEnteredChartsListing', { pageNum: currentPageNumber, entriesPerPage: resultsPerPage }).then(function (response) {
                         charts(response[0]);
                         numberOfPages(response[1]);
                         if (numberOfPages < currentPageNumber) {
@@ -200,9 +199,9 @@
                         $('#listingLoading').hide();
                     });
                 } else {
-                    deleteStatus(common.ErrorIcon + ' Failed to delete Entered Chart.<br />' + data)
+                    deleteStatus(common.ErrorIcon + ' Failed to delete Entered Chart.<br />' + data);
                 }
-            })
+            });
             return false;
         }
     };

@@ -22,6 +22,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
+    <NuGetPackageImportStamp>6c3158f7</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -180,6 +181,7 @@
     <Compile Include="Controllers\AspectInterpretationsController.cs" />
     <Compile Include="Controllers\CelestialObjectsController.cs" />
     <Compile Include="Controllers\ChartObjectsApiController.cs" />
+    <Compile Include="Controllers\CommonController.cs" />
     <Compile Include="Controllers\EnteredChartsApiController.cs" />
     <Compile Include="Controllers\EnteredChartsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -491,6 +493,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Common\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

@@ -1,6 +1,9 @@
 ﻿<section>
     <h1 data-bind="text: displayName"></h1>
     <input type="hidden" id="chartId" data-bind="value: enteredChartListing().EnteredChartId()" />
+
+    <div id="status" data-bind="html: status"></div>
+
     <div class="container">
         <h4><span data-bind="text: enteredChartListing().ChartTypeName()"></span> Chart for <span data-bind="text: enteredChartListing().SubjectName()"></span></h4>
         <hr />
@@ -122,7 +125,7 @@
                         <td data-bind="html: House"></td>
                         <td>
                             <a href="#" data-bind="click: $root.GetAspects" title="View Aspects"><span class="fa fa-search"></span></a>&nbsp;
-                            <a href="#" data-bind="click: function() {$root.EditThisShit($data);return false;}, visible: $root.isCelestialObject($data)" title="Edit Coordinates"><span class="fa fa-edit"></span></a>
+                            <a href="#" data-bind="click: function() {$root.openEditCoordinatesForm($data);return false;}, visible: $root.isCelestialObject($data)" title="Edit Coordinates"><span class="fa fa-edit"></span></a>
                         </td>
                     </tr>
                 </tbody>
@@ -140,13 +143,13 @@
                     <span data-bind="html: AspectName(), css: HtmlTextCssClass()"></span>
                     <ul data-bind="foreach: aspectList()">
                         <li data-bind="attr: {id: $parent.AspectName + CelestialObjectId()}, css: $root.SetUpListItemElementForAspect($data)">
-                            <span data-bind="html: $root.FormatAspectCoordinates($data, $parent)"></span>
-                            <a href="#" data-bind="click: function() {$root.GetInterpretation($data, $parent, '#' + $parent.AspectName + CelestialObjectId())}, visible: BaseObjectValidForInterpretation() && ThisObjectValidForInterpretation(), css: { 'action-successful': InterpretationList() !== null && InterpretationList() !== undefined && InterpretationList().length > 0}">
+                            <span data-bind="html: $root.FormatAspectCoordinates($data)"></span>
+                            <a href="#" data-bind="click: function() {$root.GetInterpretation($data, $parent)}, visible: BaseObjectValidForInterpretation() && ThisObjectValidForInterpretation(), css: { 'action-successful': InterpretationList() !== null && InterpretationList() !== undefined && InterpretationList().length > 0}">
                                 <span class="fa fa-search"></span>
                             </a>
                             <ul data-bind="foreach: InterpretationList()">
                                 <li class="detail-interpretation">
-                                    <span data-bind="html: Interpretation.replace(/\n/g, '<br>')"></span> 
+                                    <span data-bind="html: Interpretation.replace(/\n/g, '<br>')"></span>
                                     <a data-bind="attr: {href: CitationUrl, target: '_blank' }, text: CitationUrl, visible: CitationUrl !== null && CitationUrl !== undefined && CitationUrl.substring(0, 4) === 'http'"></a>
                                     <span data-bind="html: CitationUrl, visible: CitationUrl !== null && CitationUrl !== undefined && CitationUrl.substring(0, 4) !== 'http'"></span>
                                 </li>
@@ -155,6 +158,33 @@
                     </ul>
                 </li>
             </ul>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editCoordinatesModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <form data-bind="with: editCoordinates">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Edit Coordinates</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="editStatus" data-bind="html: $root.editStatus"></div>
+                        <label id="editCoordinatesObjectName"></label>
+                        <input id="editCoordinatesDegrees" type="text" class="coordinate-text degree" data-bind="value: Degrees" />&deg;
+                        <select id="editCoordinatesSigns" data-bind="options: $root.signsOptions, optionsText: 'SignAbbreviation', optionsValue: 'SignId', value: SignId"></select>
+                        <input id="editCoordinatesMinutes" type="text" class="coordinate-text minutes" data-bind="value: Minutes" />&apos;
+                        <input id="editCoordinatesSeconds" type="text" class="coordinate-text seconds" data-bind="value: Seconds" />&quot;
+                        <select id="editCoordinatesOrientations" data-bind="options: $root.orientationsOptions, optionsText: 'OrientationDescription', optionsValue: 'OrientationId', value: OrientationId"></select>
+                        <input id="editCoordinatesChartObjectId" type="hidden" data-bind="value: ChartObjectId" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="button" class="btn btn-primary" id="saveCoordinateChanges" value="Save Changes" data-bind="click: $root.updateCoordinates" />
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </section>
