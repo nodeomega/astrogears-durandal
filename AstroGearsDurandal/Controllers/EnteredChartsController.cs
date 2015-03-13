@@ -2348,6 +2348,27 @@ namespace AstroGearsDurandal.Controllers
         }
 
         /// <summary>
+        /// Deletes the chart object for entered chart.
+        /// </summary>
+        /// <param name="chartObjectId">The chart object identifier.</param>
+        /// <returns>Success if successful, null otherwise.</returns>
+        [CanBeNull]
+        public JsonResult DeleteChartObjectForEnteredChart(int chartObjectId)
+        {
+            var deleteObject = this.db.ChartObjects.Find(chartObjectId);
+
+            if (deleteObject == null)
+            {
+                return this.Json(null, JsonRequestBehavior.DenyGet);
+            }
+
+            this.db.ChartObjects.Remove(deleteObject);
+            this.db.SaveChanges();
+
+            return this.Json("Success", JsonRequestBehavior.DenyGet);
+        }
+
+        /// <summary>
         /// Updates the house cusp for entered chart.
         /// </summary>
         /// <param name="chartHouseId">The chart house identifier.</param>

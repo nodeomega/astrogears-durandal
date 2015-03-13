@@ -13,12 +13,16 @@
     }
 
     function EnteredChartCoordinates(data) {
+        this.CelestialObjectName = ko.observable(data.CelestialObjectName);
         this.Degrees = ko.observable(data.Degrees);
         this.SignId = ko.observable(data.SignId);
+        this.SignAbbreviation = ko.observable(data.SignAbbreviation);
         this.Minutes = ko.observable(data.Minutes);
         this.Seconds = ko.observable(data.Seconds);
         this.OrientationId = ko.observable(data.OrientationId);
+        this.OrientationAbbreviation = ko.observable(data.OrientationAbbreviation);
         this.ChartObjectId = ko.observable(data.ChartObjectId);
+        this.HtmlTextCssClass = ko.observable(data.HtmlTextCssClass);
     }
 
     function AspectBaseListing(data) {
@@ -84,7 +88,9 @@
         editSignId = ko.observable(0),
         editOrientationId = ko.observable(0),
         editCoordinates = ko.observable(),
-        editStatus = ko.observable();
+        editStatus = ko.observable(),
+        deleteCoordinates = ko.observable(),
+        deleteStatus = ko.observable();
 
     return {
         status: status,
@@ -113,6 +119,8 @@
         editOrientationId: editOrientationId,
         editCoordinates: editCoordinates,
         editStatus: editStatus,
+        deleteCoordinates: deleteCoordinates,
+        deleteStatus: deleteStatus,
         activate: function (context) {
             //the router's activator calls this function and waits for it to complete before proceeding
             this.chartObjects.removeAll();
@@ -181,7 +189,7 @@
 
                     $('#chartLoading').hide();
                 }, function () {
-                    console.log('Refesh Failed.');
+                    console.log('Refresh Failed.');
                 });
         },
         dynamicChartObjectCss: dynamicChartObjectCss,
@@ -255,6 +263,7 @@
             return false;
         },
         openEditCoordinatesForm: openEditCoordinatesForm,
+        openDeleteCoordinatesForm: openDeleteCoordinatesForm,
         isCelestialObject: isCelestialObject,
         HouseCoordinateString: HouseCoordinateString,
         HouseLabel: HouseLabel,
@@ -305,20 +314,21 @@
             });
             return false;
         },
-        updateCoordinates: function (item) {
+        confirmUpdateCoordinates: function (item) {
             $.post('/EnteredCharts/UpdateChartObjectForEnteredChart', {
-                chartObjectId: item.ChartObjectId(),
-                degrees: item.Degrees(),
-                signId: item.SignId(),
-                minutes: item.Minutes(),
-                seconds: item.Seconds(),
-                orientationId: item.OrientationId()
+                chartObjectId: item.ChartObjectId,
+                degrees: item.Degrees,
+                signId: item.SignId,
+                minutes: item.Minutes,
+                seconds: item.Seconds,
+                orientationId: item.OrientationId
             }).then(function (data) {
                 if (data === 'Success') {
                     status(common.SuccessIcon + ' Coordinates updated successfully.');
 
                     $('#editCoordinatesModal').modal('hide');
 
+                    chartObjects.removeAll();
                     $('#chartLoading').show();
                     $.getJSON('/EnteredCharts/GetDetailsChartListing', {
                         id: chartId,
@@ -337,6 +347,34 @@
             });
             return false;
         },
+        confirmDeleteCoordinates: function (item) {
+            $.post('/EnteredCharts/DeleteChartObjectForEnteredChart', {
+                chartObjectId: item.ChartObjectId
+            }).then(function (data) {
+                if (data === 'Success') {
+                    status(common.SuccessIcon + ' Coordinates deleted successfully.');
+
+                    $('#deleteCoordinatesModal').modal('hide');
+
+                    chartObjects.removeAll();
+                    $('#chartLoading').show();
+                    $.getJSON('/EnteredCharts/GetDetailsChartListing', {
+                        id: chartId,
+                        draconic: includeDraconic,
+                        arabic: includeArabic,
+                        asteroids: includeAsteroids,
+                        stars: includeStars,
+                        houseSystemId: chartHouseSystemId
+                    }).then(function (response) {
+                        chartObjects(response);
+                        $('#chartLoading').hide();
+                    });
+                } else {
+                    deleteStatus(common.ErrorIcon + ' Failed to delete Coordinates.<br />' + data);
+                }
+            });
+            return false;
+        }
     };
 
     function HouseCoordinateString(item) {
@@ -418,7 +456,16 @@
         if (!item.Draconic && item.CelestialObjectTypeName !== 'Arabic Part' && item.CelestialObjectTypeName !== 'Angle/House Cusp')
         {
             $("#editCoordinatesModal").modal("show");
-            editCoordinates(new EnteredChartCoordinates(item));
+            //editCoordinates(new EnteredChartCoordinates(item));
+            editCoordinates(item);
+        }
+    }
+
+    function openDeleteCoordinatesForm(item) {
+        if (!item.Draconic && item.CelestialObjectTypeName !== 'Arabic Part' && item.CelestialObjectTypeName !== 'Angle/House Cusp') {
+            $("#deleteCoordinatesModal").modal("show");
+            //deleteCoordinates(new EnteredChartCoordinates(item));
+            deleteCoordinates(item);
         }
     }
 

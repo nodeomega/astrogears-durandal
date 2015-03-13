@@ -126,6 +126,7 @@
                         <td>
                             <a href="#" data-bind="click: $root.GetAspects" title="View Aspects"><span class="fa fa-search"></span></a>&nbsp;
                             <a href="#" data-bind="click: function() {$root.openEditCoordinatesForm($data);return false;}, visible: $root.isCelestialObject($data)" title="Edit Coordinates"><span class="fa fa-edit"></span></a>
+                            <a href="#" data-bind="click: function() {$root.openDeleteCoordinatesForm($data);return false;}, visible: $root.isCelestialObject($data)" title="Delete Coordinates"><span class="fa fa-remove error"></span></a>
                         </td>
                     </tr>
                 </tbody>
@@ -181,7 +182,34 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <input type="button" class="btn btn-primary" id="saveCoordinateChanges" value="Save Changes" data-bind="click: $root.updateCoordinates" />
+                        <input type="button" class="btn btn-primary" id="saveCoordinateChanges" value="Save Changes" data-bind="click: $root.confirmUpdateCoordinates" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteCoordinatesModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <form data-bind="with: deleteCoordinates">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Delete Coordinates</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="interface-warning">
+                            <span class="fa fa-exclamation-triangle error"></span> This will be PERMANENTLY deleted!<br />Continue?
+                        </div>
+                        <hr />
+                        <div id="deleteStatus" data-bind="html: $root.deleteStatus"></div>
+                        <label id="deleteCoordinatesObjectName" data-bind="html: CelestialObjectName"></label>
+                        <span id="deleteCoordinatesDisplay" data-bind="html: $root.CoordinateString($data)"></span>
+                        <input id="deleteCoordinatesChartObjectId" type="hidden" data-bind="value: ChartObjectId" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="button" class="btn btn-primary" id="deleteCoordinateChanges" value="Delete Changes" data-bind="click: $root.confirmDeleteCoordinates" />
                     </div>
                 </div>
             </form>
